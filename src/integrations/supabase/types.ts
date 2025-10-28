@@ -172,6 +172,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_view_count: {
+        Args: { p_user_id: string; p_video_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "teacher" | "student"
