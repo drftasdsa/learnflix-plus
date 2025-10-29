@@ -29,6 +29,7 @@ const VideoList = ({ teacherId, userId, isTeacher }: VideoListProps) => {
   const { toast } = useToast();
   const [videos, setVideos] = useState<Video[]>([]);
   const [viewCounts, setViewCounts] = useState<Record<string, number>>({});
+  const [thumbnailUrls, setThumbnailUrls] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
   const fetchVideos = async () => {
@@ -43,6 +44,27 @@ const VideoList = ({ teacherId, userId, isTeacher }: VideoListProps) => {
 
       if (error) throw error;
       setVideos(data || []);
+
+      // Generate signed URLs for thumbnails
+      if (data) {
+        const thumbnailPromises = data.map(async (video) => {
+          if (video.thumbnail_url) {
+            const path = extractStoragePath(video.thumbnail_url);
+            const { data: signedData } = await supabase.storage
+              .from('videos')
+              .createSignedUrl(path, 3600);
+            return { id: video.id, url: signedData?.signedUrl || '' };
+          }
+          return { id: video.id, url: '' };
+        });
+
+        const thumbnailResults = await Promise.all(thumbnailPromises);
+        const thumbnailMap: Record<string, string> = {};
+        thumbnailResults.forEach(({ id, url }) => {
+          if (url) thumbnailMap[id] = url;
+        });
+        setThumbnailUrls(thumbnailMap);
+      }
 
       // Fetch view counts for students
       if (userId && !isTeacher) {
@@ -68,18 +90,30 @@ const VideoList = ({ teacherId, userId, isTeacher }: VideoListProps) => {
     }
   };
 
+  // Helper function to extract storage path from URL or path string
+  const extractStoragePath = (url: string): string => {
+    if (url.includes('/storage/v1/object/public/videos/')) {
+      // Old format: https://...supabase.co/storage/v1/object/public/videos/path/to/file.mp4
+      return url.split('/storage/v1/object/public/videos/')[1];
+    } else if (url.startsWith('videos/')) {
+      // New format: videos/path/to/file.mp4
+      return url.replace('videos/', '');
+    } else {
+      // Already in correct format: path/to/file.mp4
+      return url;
+    }
+  };
+
   useEffect(() => {
     fetchVideos();
   }, [teacherId, userId]);
 
   const handleWatch = async (video: Video) => {
     try {
+      const videoPath = extractStoragePath(video.video_url);
+
       // For teachers, get signed URL directly
       if (isTeacher) {
-        const videoPath = video.video_url.includes('/videos/') 
-          ? video.video_url.split('/videos/')[1]
-          : video.video_url.replace('videos/', '');
-        
         const { data: signedUrlData, error: urlError } = await supabase.storage
           .from('videos')
           .createSignedUrl(videoPath, 3600);
@@ -131,10 +165,6 @@ const VideoList = ({ teacherId, userId, isTeacher }: VideoListProps) => {
       }));
 
       // Get signed URL for the video
-      const videoPath = video.video_url.includes('/videos/') 
-        ? video.video_url.split('/videos/')[1]
-        : video.video_url.replace('videos/', '');
-
       const { data: signedUrlData, error: urlError } = await supabase.storage
         .from('videos')
         .createSignedUrl(videoPath, 3600);
@@ -200,19 +230,19 @@ const VideoList = ({ teacherId, userId, isTeacher }: VideoListProps) => {
 
         return (
           <Card key={video.id} className="overflow-hidden">
-            <CardHeader className="p-0">
-              {video.thumbnail_url ? (
-                <img
-                  src={video.thumbnail_url}
-                  alt={video.title}
-                  className="w-full h-48 object-cover"
-                />
-              ) : (
-                <div className="w-full h-48 bg-muted flex items-center justify-center">
-                  <Play className="h-12 w-12 text-muted-foreground" />
-                </div>
-              )}
-            </CardHeader>
+          <CardHeader className="p-0">
+            {thumbnailUrls[video.id] ? (
+              <img
+                src={thumbnailUrls[video.id]}
+                alt={video.title}
+                className="w-full h-48 object-cover"
+              />
+            ) : (
+              <div className="w-full h-48 bg-muted flex items-center justify-center">
+                <Play className="h-12 w-12 text-muted-foreground" />
+              </div>
+            )}
+          </CardHeader>
             <CardContent className="p-4">
               <CardTitle className="text-lg mb-2">{video.title}</CardTitle>
               {video.description && (
