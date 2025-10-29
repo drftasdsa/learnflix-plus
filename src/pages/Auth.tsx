@@ -18,12 +18,18 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState<"student" | "teacher">("student");
+  const [inviteCode, setInviteCode] = useState("");
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      // Validate invite code for teachers
+      if (role === "teacher" && inviteCode !== "alkhader") {
+        throw new Error("Invalid invite code for teacher registration");
+      }
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -190,6 +196,21 @@ const Auth = () => {
                     </div>
                   </RadioGroup>
                 </div>
+                
+                {role === "teacher" && (
+                  <div className="space-y-2">
+                    <Label htmlFor="invite-code">Teacher Invite Code</Label>
+                    <Input
+                      id="invite-code"
+                      type="text"
+                      placeholder="Enter invite code"
+                      value={inviteCode}
+                      onChange={(e) => setInviteCode(e.target.value)}
+                      required
+                    />
+                  </div>
+                )}
+                
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Creating account..." : "Sign Up"}
                 </Button>
