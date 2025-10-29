@@ -48,7 +48,7 @@ const Dashboard = () => {
         .from("user_roles")
         .select("role")
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error fetching role:", error);
@@ -56,7 +56,9 @@ const Dashboard = () => {
         return;
       }
 
-      setRole(data.role);
+      if (data) {
+        setRole(data.role);
+      }
       setLoading(false);
     };
 
