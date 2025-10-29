@@ -13,7 +13,7 @@ const Dashboard = () => {
   const { toast } = useToast();
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [role, setRole] = useState<"student" | "teacher" | null>(null);
+  const [role, setRole] = useState<"student" | "teacher" | "admin" | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -98,7 +98,12 @@ const Dashboard = () => {
       </header>
       
       <main className="container mx-auto px-4 py-8">
-        {role === "teacher" ? (
+        {role === "admin" ? (
+          <div className="text-center">
+            <h2 className="text-3xl font-bold mb-4">Admin Dashboard</h2>
+            <p className="text-muted-foreground">Admin features coming soon...</p>
+          </div>
+        ) : role === "teacher" ? (
           <TeacherDashboard user={user!} />
         ) : (
           <StudentDashboard user={user!} />

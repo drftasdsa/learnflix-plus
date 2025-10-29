@@ -75,14 +75,19 @@ const Auth = () => {
     }
   };
 
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSignIn = async (e: React.FormEvent | string, passwordParam?: string) => {
+    if (typeof e !== 'string') {
+      e.preventDefault();
+    }
     setLoading(true);
 
     try {
+      const loginEmail = typeof e === 'string' ? e : email;
+      const loginPassword = passwordParam || password;
+
       const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: loginEmail,
+        password: loginPassword,
       });
 
       if (error) throw error;
@@ -115,10 +120,11 @@ const Auth = () => {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
-            </TabsList>
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="signin">Sign In</TabsTrigger>
+                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                <TabsTrigger value="admin">Admin</TabsTrigger>
+              </TabsList>
             
             <TabsContent value="signin">
               <form onSubmit={handleSignIn} className="space-y-4">
@@ -220,6 +226,59 @@ const Auth = () => {
                 
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Creating account..." : "Sign Up"}
+                </Button>
+              </form>
+            </TabsContent>
+
+            <TabsContent value="admin">
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                setLoading(true);
+                const formData = new FormData(e.currentTarget);
+                const username = formData.get("username") as string;
+                const adminPassword = formData.get("password") as string;
+
+                if (username === "admin" && adminPassword === "1472") {
+                  try {
+                    await handleSignIn("admin@learnflix.com", "1472admin1472");
+                  } catch (error: any) {
+                    toast({
+                      variant: "destructive",
+                      title: "Admin login failed",
+                      description: error.message,
+                    });
+                  }
+                } else {
+                  toast({
+                    variant: "destructive",
+                    title: "Invalid credentials",
+                    description: "Invalid username or password",
+                  });
+                }
+                setLoading(false);
+              }} className="space-y-4">
+                <div>
+                  <Label htmlFor="admin-username">Username</Label>
+                  <Input
+                    id="admin-username"
+                    name="username"
+                    type="text"
+                    placeholder="admin"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="admin-password">Password</Label>
+                  <Input
+                    id="admin-password"
+                    name="password"
+                    type="password"
+                    placeholder="Enter password"
+                    required
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Signing in..." : "Sign In as Admin"}
                 </Button>
               </form>
             </TabsContent>
