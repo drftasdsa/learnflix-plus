@@ -65,6 +65,27 @@ export type Database = {
         }
         Relationships: []
       }
+      teacher_invite_codes: {
+        Row: {
+          code_hash: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+        }
+        Insert: {
+          code_hash: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+        }
+        Update: {
+          code_hash?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -172,10 +193,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      increment_view_count: {
-        Args: { p_user_id: string; p_video_id: string }
-        Returns: undefined
-      }
+      increment_view_count: { Args: { p_video_id: string }; Returns: Json }
     }
     Enums: {
       app_role: "teacher" | "student"

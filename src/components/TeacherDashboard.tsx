@@ -36,7 +36,7 @@ const TeacherDashboard = ({ user }: TeacherDashboardProps) => {
     setUploading(true);
 
     try {
-      // Upload video
+      // Upload video to private bucket
       const videoFileName = `${user.id}/${Date.now()}_${videoFile.name}`;
       const { error: videoError } = await supabase.storage
         .from("videos")
@@ -44,9 +44,8 @@ const TeacherDashboard = ({ user }: TeacherDashboardProps) => {
 
       if (videoError) throw videoError;
 
-      const { data: { publicUrl: videoUrl } } = supabase.storage
-        .from("videos")
-        .getPublicUrl(videoFileName);
+      // Store the path, not public URL (bucket is now private)
+      const videoUrl = `videos/${videoFileName}`;
 
       // Upload thumbnail if provided
       let thumbnailUrl = null;
@@ -58,10 +57,7 @@ const TeacherDashboard = ({ user }: TeacherDashboardProps) => {
 
         if (thumbError) throw thumbError;
 
-        const { data: { publicUrl } } = supabase.storage
-          .from("videos")
-          .getPublicUrl(thumbnailFileName);
-        thumbnailUrl = publicUrl;
+        thumbnailUrl = `videos/${thumbnailFileName}`;
       }
 
       // Create video record

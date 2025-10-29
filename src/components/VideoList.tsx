@@ -73,53 +73,89 @@ const VideoList = ({ teacherId, userId, isTeacher }: VideoListProps) => {
   }, [teacherId, userId]);
 
   const handleWatch = async (video: Video) => {
-    if (!userId) return;
+    try {
+      // For teachers, get signed URL directly
+      if (isTeacher) {
+        const videoPath = video.video_url.includes('/videos/') 
+          ? video.video_url.split('/videos/')[1]
+          : video.video_url.replace('videos/', '');
+        
+        const { data: signedUrlData, error: urlError } = await supabase.storage
+          .from('videos')
+          .createSignedUrl(videoPath, 3600);
 
-    const currentViews = viewCounts[video.id] || 0;
+        if (urlError || !signedUrlData) {
+          toast({
+            title: "Error",
+            description: "Failed to access video",
+            variant: "destructive",
+          });
+          return;
+        }
 
-    if (currentViews >= 2) {
-      toast({
-        variant: "destructive",
-        title: "View limit reached",
-        description: "You've watched this video 2 times. Upgrade to Premium for unlimited views!",
-      });
-      return;
-    }
-
-    // Increment view count
-    const { error } = await supabase.rpc("increment_view_count", {
-      p_video_id: video.id,
-      p_user_id: userId,
-    });
-
-    if (error) {
-      // If function doesn't exist, create view record manually
-      const { data: existingView } = await supabase
-        .from("video_views")
-        .select("*")
-        .eq("video_id", video.id)
-        .eq("user_id", userId)
-        .single();
-
-      if (existingView) {
-        await supabase
-          .from("video_views")
-          .update({ 
-            view_count: existingView.view_count + 1,
-            last_viewed_at: new Date().toISOString(),
-          })
-          .eq("id", existingView.id);
-      } else {
-        await supabase.from("video_views").insert({
-          video_id: video.id,
-          user_id: userId,
-          view_count: 1,
-        });
+        window.open(signedUrlData.signedUrl, '_blank');
+        return;
       }
-    }
 
-    setViewCounts({ ...viewCounts, [video.id]: currentViews + 1 });
-    window.open(video.quality_standard, "_blank");
+      // For students, enforce view limit server-side
+      if (!userId) {
+        toast({
+          title: "Authentication required",
+          description: "Please log in to watch videos",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Call server-side function that validates view limit
+      const { data: result, error } = await supabase
+        .rpc('increment_view_count', {
+          p_video_id: video.id
+        });
+
+      const typedResult = result as { success: boolean; error?: string; view_count?: number } | null;
+
+      if (error || !typedResult?.success) {
+        toast({
+          title: "View limit reached",
+          description: typedResult?.error || "You've reached your view limit. Upgrade to premium for unlimited access.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Update local state
+      setViewCounts(prev => ({
+        ...prev,
+        [video.id]: typedResult.view_count || 0
+      }));
+
+      // Get signed URL for the video
+      const videoPath = video.video_url.includes('/videos/') 
+        ? video.video_url.split('/videos/')[1]
+        : video.video_url.replace('videos/', '');
+
+      const { data: signedUrlData, error: urlError } = await supabase.storage
+        .from('videos')
+        .createSignedUrl(videoPath, 3600);
+
+      if (urlError || !signedUrlData) {
+        toast({
+          title: "Error",
+          description: "Failed to access video",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      window.open(signedUrlData.signedUrl, '_blank');
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to access video",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDelete = async (videoId: string) => {

@@ -25,9 +25,16 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      // Validate invite code for teachers
-      if (role === "teacher" && inviteCode !== "alkhader") {
-        throw new Error("Invalid invite code for teacher registration");
+      // Validate teacher invite code server-side
+      if (role === "teacher") {
+        const { data: validationResult, error: functionError } = await supabase.functions.invoke(
+          'validate-teacher-invite',
+          { body: { inviteCode } }
+        );
+
+        if (functionError || !validationResult?.valid) {
+          throw new Error("Invalid invite code for teacher registration");
+        }
       }
 
       const { data, error } = await supabase.auth.signUp({
