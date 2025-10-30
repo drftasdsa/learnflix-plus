@@ -248,9 +248,9 @@ const Auth = () => {
                 const username = formData.get("username") as string;
                 const adminPassword = formData.get("password") as string;
 
-                if (username === "admin" && adminPassword === "1472") {
+                if (username === "admin" && adminPassword === "147258") {
                   try {
-                    await handleSignIn("admin@learnflix.com", "1472admin1472");
+                    await handleSignIn("admin@learnflix.com", "147258admin147258");
                   } catch (error: any) {
                     toast({
                       variant: "destructive",
