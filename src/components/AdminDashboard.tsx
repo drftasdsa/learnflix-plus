@@ -173,7 +173,7 @@ const AdminDashboard = ({ user }: AdminDashboardProps) => {
               <select
                 value={selectedUserId}
                 onChange={(e) => setSelectedUserId(e.target.value)}
-                className="w-full p-2 border rounded-md bg-background"
+                className="w-full p-2 border rounded-md bg-background text-foreground"
               >
                 <option value="">-- Select a user --</option>
                 {allUsers.map((u) => (

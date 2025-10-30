@@ -261,15 +261,23 @@ const VideoList = ({ teacherId, userId, isTeacher }: VideoListProps) => {
             </CardContent>
             <CardFooter className="p-4 pt-0 flex gap-2">
               {isTeacher ? (
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => handleDelete(video.id)}
-                  className="w-full"
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
-                </Button>
+                <>
+                  <Button
+                    size="sm"
+                    onClick={() => handleWatch(video)}
+                    className="flex-1"
+                  >
+                    <Play className="h-4 w-4 mr-2" />
+                    Watch
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDelete(video.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </>
               ) : (
                 <>
                   <Button
