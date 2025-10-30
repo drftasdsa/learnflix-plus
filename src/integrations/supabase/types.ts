@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      banned_users: {
+        Row: {
+          banned_at: string | null
+          banned_by: string
+          id: string
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          banned_at?: string | null
+          banned_by: string
+          id?: string
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          banned_at?: string | null
+          banned_by?: string
+          id?: string
+          reason?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -194,6 +218,7 @@ export type Database = {
         Returns: boolean
       }
       increment_view_count: { Args: { p_video_id: string }; Returns: Json }
+      is_user_banned: { Args: { user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "teacher" | "student" | "admin"

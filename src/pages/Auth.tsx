@@ -85,12 +85,22 @@ const Auth = () => {
       const loginEmail = typeof e === 'string' ? e : email;
       const loginPassword = passwordParam || password;
 
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: loginEmail,
         password: loginPassword,
       });
 
       if (error) throw error;
+
+      // Check if user is banned
+      if (data.user) {
+        const { data: isBanned } = await supabase.rpc('is_user_banned', { user_id: data.user.id });
+        
+        if (isBanned) {
+          await supabase.auth.signOut();
+          throw new Error("Your account has been banned. Please contact support.");
+        }
+      }
 
       toast({
         title: "Welcome back!",

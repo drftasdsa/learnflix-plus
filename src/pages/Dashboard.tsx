@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from "@supabase/supabase-js";
 import StudentDashboard from "@/components/StudentDashboard";
 import TeacherDashboard from "@/components/TeacherDashboard";
+import AdminDashboard from "@/components/AdminDashboard";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -99,10 +100,7 @@ const Dashboard = () => {
       
       <main className="container mx-auto px-4 py-8">
         {role === "admin" ? (
-          <div className="text-center">
-            <h2 className="text-3xl font-bold mb-4">Admin Dashboard</h2>
-            <p className="text-muted-foreground">Admin features coming soon...</p>
-          </div>
+          <AdminDashboard user={user!} />
         ) : role === "teacher" ? (
           <TeacherDashboard user={user!} />
         ) : (
