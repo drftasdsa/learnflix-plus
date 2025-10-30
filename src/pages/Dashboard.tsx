@@ -48,8 +48,7 @@ const Dashboard = () => {
       const { data, error } = await supabase
         .from("user_roles")
         .select("role")
-        .eq("user_id", user.id)
-        .maybeSingle();
+        .eq("user_id", user.id);
 
       if (error) {
         console.error("Error fetching role:", error);
@@ -57,9 +56,12 @@ const Dashboard = () => {
         return;
       }
 
-      if (data) {
-        setRole(data.role);
-      }
+      const roles = (data || []).map((r: { role: string }) => r.role);
+      if (roles.includes("admin")) setRole("admin");
+      else if (roles.includes("teacher")) setRole("teacher");
+      else if (roles.includes("student")) setRole("student");
+      else setRole("student");
+
       setLoading(false);
     };
 
