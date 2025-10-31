@@ -1,26 +1,41 @@
+import { useState, useEffect } from "react";
 import { User } from "@supabase/supabase-js";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Video, Crown } from "lucide-react";
+import { Video } from "lucide-react";
 import VideoList from "./VideoList";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import SubscriptionCard from "./SubscriptionCard";
+import { supabase } from "@/integrations/supabase/client";
 
 interface StudentDashboardProps {
   user: User;
 }
 
 const StudentDashboard = ({ user }: StudentDashboardProps) => {
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+
+  const checkSubscription = async () => {
+    const { data } = await supabase
+      .from("subscriptions")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("is_active", true)
+      .gte("expires_at", new Date().toISOString())
+      .maybeSingle();
+
+    setHasActiveSubscription(!!data);
+  };
+
+  useEffect(() => {
+    checkSubscription();
+  }, [user.id]);
+
   return (
     <div className="space-y-6">
-      <Alert className="bg-gradient-to-r from-primary/10 to-accent/10 border-primary/20">
-        <Crown className="h-4 w-4" />
-        <AlertDescription>
-          Free users can watch each video up to 2 times in standard quality. Upgrade to Premium (3 JOD) for unlimited views, downloads, and HD quality!
-          <Button variant="outline" size="sm" className="ml-4" disabled>
-            Upgrade to Premium (Coming Soon)
-          </Button>
-        </AlertDescription>
-      </Alert>
+      <SubscriptionCard 
+        userId={user.id} 
+        hasActiveSubscription={hasActiveSubscription}
+        onSubscriptionChange={checkSubscription}
+      />
 
       <Card>
         <CardHeader>

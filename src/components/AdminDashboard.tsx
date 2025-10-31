@@ -158,6 +158,25 @@ const AdminDashboard = ({ user }: AdminDashboardProps) => {
 
   return (
     <div className="space-y-8">
+      <Card>
+        <CardHeader>
+          <CardTitle>All Users</CardTitle>
+          <CardDescription>{allUsers.length} total users</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            {allUsers.map((u) => (
+              <div key={u.id} className="p-3 border rounded-md flex justify-between items-center">
+                <div>
+                  <p className="font-medium">{u.full_name || "Unnamed User"}</p>
+                  <p className="text-xs text-muted-foreground">{u.id}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
