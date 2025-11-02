@@ -16,85 +16,70 @@ const SubscriptionCard = ({ userId, hasActiveSubscription, onSubscriptionChange 
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Load PayPal SDK
-    const script = document.createElement('script');
-    script.src = `https://www.paypal.com/sdk/js?client-id=${import.meta.env.VITE_PAYPAL_CLIENT_ID}&currency=USD`;
-    script.async = true;
-    document.body.appendChild(script);
+    // Check if returning from PayPal
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    
+    if (token) {
+      handlePayPalReturn(token);
+    }
+  }, []);
 
-    script.onload = () => {
-      if ((window as any).paypal && !hasActiveSubscription) {
-        renderPayPalButton();
+  const handlePayPalReturn = async (orderId: string) => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('capture-paypal-payment', {
+        body: { orderId },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Payment successful!",
+        description: "Your premium subscription is now active.",
+      });
+
+      onSubscriptionChange();
+      
+      // Clean up URL
+      window.history.replaceState({}, '', window.location.pathname);
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Payment failed",
+        description: error.message || "Failed to process payment",
+      });
+      
+      // Clean up URL
+      window.history.replaceState({}, '', window.location.pathname);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubscribe = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-paypal-order', {
+        body: { amount: 1, currency: 'JOD' },
+      });
+
+      if (error) throw error;
+
+      if (data.approveUrl) {
+        // Redirect to PayPal
+        window.location.href = data.approveUrl;
+      } else {
+        throw new Error('No PayPal approval URL received');
       }
-    };
-
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, [hasActiveSubscription]);
-
-  const renderPayPalButton = () => {
-    const container = document.getElementById('paypal-button-container');
-    if (!container || hasActiveSubscription) return;
-
-    (window as any).paypal.Buttons({
-      createOrder: async () => {
-        setLoading(true);
-        try {
-          const { data: { session } } = await supabase.auth.getSession();
-          
-          const { data, error } = await supabase.functions.invoke('create-paypal-order', {
-            body: { amount: 1, currency: 'JOD' },
-          });
-
-          if (error) throw error;
-          return data.orderId;
-        } catch (error: any) {
-          toast({
-            variant: "destructive",
-            title: "Error",
-            description: error.message,
-          });
-          throw error;
-        } finally {
-          setLoading(false);
-        }
-      },
-      onApprove: async (data: any) => {
-        setLoading(true);
-        try {
-          const { error } = await supabase.functions.invoke('capture-paypal-payment', {
-            body: { orderId: data.orderID },
-          });
-
-          if (error) throw error;
-
-          toast({
-            title: "Payment successful!",
-            description: "Your premium subscription is now active.",
-          });
-
-          onSubscriptionChange();
-        } catch (error: any) {
-          toast({
-            variant: "destructive",
-            title: "Payment failed",
-            description: error.message,
-          });
-        } finally {
-          setLoading(false);
-        }
-      },
-      onError: (err: any) => {
-        console.error('PayPal error:', err);
-        toast({
-          variant: "destructive",
-          title: "Payment error",
-          description: "Something went wrong with PayPal. Please try again.",
-        });
-        setLoading(false);
-      },
-    }).render('#paypal-button-container');
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to create payment",
+      });
+      setLoading(false);
+    }
   };
 
   return (
@@ -136,7 +121,13 @@ const SubscriptionCard = ({ userId, hasActiveSubscription, onSubscriptionChange 
               <div className="text-center text-sm text-muted-foreground">
                 Price: 1 JOD/month
               </div>
-              <div id="paypal-button-container" className={loading ? "opacity-50 pointer-events-none" : ""}></div>
+              <Button 
+                onClick={handleSubscribe} 
+                disabled={loading}
+                className="w-full"
+              >
+                {loading ? "Redirecting to PayPal..." : "Pay with PayPal"}
+              </Button>
             </div>
           </>
         )}
