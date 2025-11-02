@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,37 +15,86 @@ const SubscriptionCard = ({ userId, hasActiveSubscription, onSubscriptionChange 
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
-  const handleSubscribe = async () => {
-    setLoading(true);
-    try {
-      const expiresAt = new Date();
-      expiresAt.setMonth(expiresAt.getMonth() + 1);
+  useEffect(() => {
+    // Load PayPal SDK
+    const script = document.createElement('script');
+    script.src = `https://www.paypal.com/sdk/js?client-id=${import.meta.env.VITE_PAYPAL_CLIENT_ID}&currency=USD`;
+    script.async = true;
+    document.body.appendChild(script);
 
-      const { error } = await supabase
-        .from("subscriptions")
-        .insert({
-          user_id: userId,
-          is_active: true,
-          expires_at: expiresAt.toISOString(),
+    script.onload = () => {
+      if ((window as any).paypal && !hasActiveSubscription) {
+        renderPayPalButton();
+      }
+    };
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, [hasActiveSubscription]);
+
+  const renderPayPalButton = () => {
+    const container = document.getElementById('paypal-button-container');
+    if (!container || hasActiveSubscription) return;
+
+    (window as any).paypal.Buttons({
+      createOrder: async () => {
+        setLoading(true);
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          
+          const { data, error } = await supabase.functions.invoke('create-paypal-order', {
+            body: { amount: 1, currency: 'JOD' },
+          });
+
+          if (error) throw error;
+          return data.orderId;
+        } catch (error: any) {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: error.message,
+          });
+          throw error;
+        } finally {
+          setLoading(false);
+        }
+      },
+      onApprove: async (data: any) => {
+        setLoading(true);
+        try {
+          const { error } = await supabase.functions.invoke('capture-paypal-payment', {
+            body: { orderId: data.orderID },
+          });
+
+          if (error) throw error;
+
+          toast({
+            title: "Payment successful!",
+            description: "Your premium subscription is now active.",
+          });
+
+          onSubscriptionChange();
+        } catch (error: any) {
+          toast({
+            variant: "destructive",
+            title: "Payment failed",
+            description: error.message,
+          });
+        } finally {
+          setLoading(false);
+        }
+      },
+      onError: (err: any) => {
+        console.error('PayPal error:', err);
+        toast({
+          variant: "destructive",
+          title: "Payment error",
+          description: "Something went wrong with PayPal. Please try again.",
         });
-
-      if (error) throw error;
-
-      toast({
-        title: "Premium activated!",
-        description: "You now have unlimited access to all videos.",
-      });
-
-      onSubscriptionChange();
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message,
-      });
-    } finally {
-      setLoading(false);
-    }
+        setLoading(false);
+      },
+    }).render('#paypal-button-container');
   };
 
   return (
@@ -83,13 +132,12 @@ const SubscriptionCard = ({ userId, hasActiveSubscription, onSubscriptionChange 
                 <span>No ads</span>
               </div>
             </div>
-            <Button 
-              onClick={handleSubscribe} 
-              disabled={loading}
-              className="w-full"
-            >
-              {loading ? "Processing..." : "Subscribe Now"}
-            </Button>
+            <div className="space-y-3">
+              <div className="text-center text-sm text-muted-foreground">
+                Price: 1 JOD/month
+              </div>
+              <div id="paypal-button-container" className={loading ? "opacity-50 pointer-events-none" : ""}></div>
+            </div>
           </>
         )}
       </CardContent>
