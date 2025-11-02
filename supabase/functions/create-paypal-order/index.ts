@@ -16,11 +16,15 @@ serve(async (req) => {
     
     const PAYPAL_CLIENT_ID = Deno.env.get('PAYPAL_CLIENT_ID');
     const PAYPAL_CLIENT_SECRET = Deno.env.get('PAYPAL_CLIENT_SECRET');
-    const PAYPAL_API_URL = Deno.env.get('PAYPAL_MODE') === 'live' 
-      ? 'https://api-m.paypal.com' 
-      : 'https://api-m.sandbox.paypal.com';
+    
+    if (!PAYPAL_CLIENT_ID || !PAYPAL_CLIENT_SECRET) {
+      throw new Error('PayPal credentials not configured');
+    }
+
+    const PAYPAL_API_URL = 'https://api-m.sandbox.paypal.com';
 
     console.log('Creating PayPal order for amount:', amount, currency);
+    console.log('Using PayPal Client ID:', PAYPAL_CLIENT_ID?.substring(0, 10) + '...');
 
     // Get PayPal access token
     const auth = btoa(`${PAYPAL_CLIENT_ID}:${PAYPAL_CLIENT_SECRET}`);
@@ -33,11 +37,14 @@ serve(async (req) => {
       body: 'grant_type=client_credentials',
     });
 
+    const tokenData = await tokenResponse.json();
+    
     if (!tokenResponse.ok) {
-      throw new Error('Failed to get PayPal access token');
+      console.error('PayPal token error:', tokenData);
+      throw new Error(`PayPal authentication failed: ${tokenData.error_description || tokenData.error}`);
     }
 
-    const { access_token } = await tokenResponse.json();
+    const { access_token } = tokenData;
 
     // Create PayPal order
     const orderResponse = await fetch(`${PAYPAL_API_URL}/v2/checkout/orders`, {
@@ -78,7 +85,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
