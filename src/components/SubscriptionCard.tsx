@@ -19,7 +19,7 @@ const SubscriptionCard = ({ userId, hasActiveSubscription, onSubscriptionChange 
     // Load PayPal SDK
     if (!window.paypal && !hasActiveSubscription) {
       const script = document.createElement('script');
-      script.src = `https://www.paypal.com/sdk/js?client-id=${import.meta.env.VITE_PAYPAL_CLIENT_ID}`;
+      script.src = 'https://www.paypal.com/sdk/js?client-id=BAANataLP_HLKdLFeAP3329OpCxHRTeAoNaYCz1fHFpW1qXekg9RdyH6pYDPubS6dTtxG4kR2J86JUoc8M&components=hosted-buttons&disable-funding=venmo&currency=USD';
       script.async = true;
       script.onload = () => renderPayPalButton();
       document.body.appendChild(script);
