@@ -16,6 +16,17 @@ const SubscriptionCard = ({ userId, hasActiveSubscription, onSubscriptionChange 
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    // Load PayPal SDK
+    if (!window.paypal && !hasActiveSubscription) {
+      const script = document.createElement('script');
+      script.src = `https://www.paypal.com/sdk/js?client-id=${import.meta.env.VITE_PAYPAL_CLIENT_ID}`;
+      script.async = true;
+      script.onload = () => renderPayPalButton();
+      document.body.appendChild(script);
+    } else if (window.paypal && !hasActiveSubscription) {
+      renderPayPalButton();
+    }
+
     // Check if returning from PayPal
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
@@ -23,7 +34,7 @@ const SubscriptionCard = ({ userId, hasActiveSubscription, onSubscriptionChange 
     if (token) {
       handlePayPalReturn(token);
     }
-  }, []);
+  }, [hasActiveSubscription]);
 
   const handlePayPalReturn = async (orderId: string) => {
     setLoading(true);
@@ -57,28 +68,13 @@ const SubscriptionCard = ({ userId, hasActiveSubscription, onSubscriptionChange 
     }
   };
 
-  const handleSubscribe = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('create-paypal-order', {
-        body: { amount: 1, currency: 'JOD' },
-      });
-
-      if (error) throw error;
-
-      if (data.approveUrl) {
-        // Redirect to PayPal
-        window.location.href = data.approveUrl;
-      } else {
-        throw new Error('No PayPal approval URL received');
-      }
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message || "Failed to create payment",
-      });
-      setLoading(false);
+  const renderPayPalButton = () => {
+    const container = document.getElementById('paypal-container-RNRYCK75FERFW');
+    if (container && window.paypal && !hasActiveSubscription) {
+      container.innerHTML = '';
+      window.paypal.HostedButtons({
+        hostedButtonId: "RNRYCK75FERFW",
+      }).render("#paypal-container-RNRYCK75FERFW");
     }
   };
 
@@ -121,13 +117,7 @@ const SubscriptionCard = ({ userId, hasActiveSubscription, onSubscriptionChange 
               <div className="text-center text-sm text-muted-foreground">
                 Price: 1 JOD/month
               </div>
-              <Button 
-                onClick={handleSubscribe} 
-                disabled={loading}
-                className="w-full"
-              >
-                {loading ? "Redirecting to PayPal..." : "Pay with PayPal"}
-              </Button>
+              <div id="paypal-container-RNRYCK75FERFW"></div>
             </div>
           </>
         )}
