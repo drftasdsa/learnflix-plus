@@ -14,7 +14,7 @@ interface StudentDashboardProps {
 
 const StudentDashboard = ({ user }: StudentDashboardProps) => {
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   const categories = ["عربي", "English", "علوم حياتية", "كيمياء", "علوم ارض", "رياضيات"];
 
@@ -58,7 +58,7 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Categories</SelectItem>
+                <SelectItem value="all">All Categories</SelectItem>
                 {categories.map((cat) => (
                   <SelectItem key={cat} value={cat}>
                     {cat}
@@ -67,7 +67,7 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
               </SelectContent>
             </Select>
           </div>
-          <VideoList userId={user.id} isTeacher={false} selectedCategory={selectedCategory} />
+          <VideoList userId={user.id} isTeacher={false} selectedCategory={selectedCategory === "all" ? undefined : selectedCategory} />
         </CardContent>
       </Card>
     </div>
