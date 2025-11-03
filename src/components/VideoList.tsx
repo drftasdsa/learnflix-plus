@@ -17,15 +17,17 @@ interface Video {
   created_at: string;
   quality_standard: string;
   quality_hd: string;
+  category: string;
 }
 
 interface VideoListProps {
   teacherId?: string;
   userId?: string;
   isTeacher: boolean;
+  selectedCategory?: string;
 }
 
-const VideoList = ({ teacherId, userId, isTeacher }: VideoListProps) => {
+const VideoList = ({ teacherId, userId, isTeacher, selectedCategory }: VideoListProps) => {
   const { toast } = useToast();
   const [videos, setVideos] = useState<Video[]>([]);
   const [viewCounts, setViewCounts] = useState<Record<string, number>>({});
@@ -38,6 +40,10 @@ const VideoList = ({ teacherId, userId, isTeacher }: VideoListProps) => {
 
       if (teacherId) {
         query = query.eq("teacher_id", teacherId);
+      }
+
+      if (selectedCategory) {
+        query = query.eq("category", selectedCategory as any);
       }
 
       const { data, error } = await query;
@@ -106,7 +112,7 @@ const VideoList = ({ teacherId, userId, isTeacher }: VideoListProps) => {
 
   useEffect(() => {
     fetchVideos();
-  }, [teacherId, userId]);
+  }, [teacherId, userId, selectedCategory]);
 
   const handleWatch = async (video: Video) => {
     try {
@@ -245,6 +251,7 @@ const VideoList = ({ teacherId, userId, isTeacher }: VideoListProps) => {
           </CardHeader>
             <CardContent className="p-4">
               <CardTitle className="text-lg mb-2">{video.title}</CardTitle>
+              <Badge variant="outline" className="mb-2">{video.category}</Badge>
               {video.description && (
                 <p className="text-sm text-muted-foreground line-clamp-2">
                   {video.description}

@@ -165,6 +165,7 @@ export type Database = {
       }
       videos: {
         Row: {
+          category: Database["public"]["Enums"]["video_category"]
           created_at: string | null
           description: string | null
           duration: number | null
@@ -178,6 +179,7 @@ export type Database = {
           video_url: string
         }
         Insert: {
+          category?: Database["public"]["Enums"]["video_category"]
           created_at?: string | null
           description?: string | null
           duration?: number | null
@@ -191,6 +193,7 @@ export type Database = {
           video_url: string
         }
         Update: {
+          category?: Database["public"]["Enums"]["video_category"]
           created_at?: string | null
           description?: string | null
           duration?: number | null
@@ -222,6 +225,13 @@ export type Database = {
     }
     Enums: {
       app_role: "teacher" | "student" | "admin"
+      video_category:
+        | "عربي"
+        | "English"
+        | "علوم حياتية"
+        | "كيمياء"
+        | "علوم ارض"
+        | "رياضيات"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -350,6 +360,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["teacher", "student", "admin"],
+      video_category: [
+        "عربي",
+        "English",
+        "علوم حياتية",
+        "كيمياء",
+        "علوم ارض",
+        "رياضيات",
+      ],
     },
   },
 } as const

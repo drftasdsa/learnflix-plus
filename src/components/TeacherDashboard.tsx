@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, Video } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import VideoList from "./VideoList";
 
 interface TeacherDashboardProps {
@@ -19,8 +20,11 @@ const TeacherDashboard = ({ user }: TeacherDashboardProps) => {
   const [uploading, setUploading] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [category, setCategory] = useState<string>("عربي");
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+
+  const categories = ["عربي", "English", "علوم حياتية", "كيمياء", "علوم ارض", "رياضيات"];
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,6 +70,7 @@ const TeacherDashboard = ({ user }: TeacherDashboardProps) => {
         .insert({
           title,
           description,
+          category: category as any,
           video_url: videoUrl,
           thumbnail_url: thumbnailUrl,
           teacher_id: user.id,
@@ -83,6 +88,7 @@ const TeacherDashboard = ({ user }: TeacherDashboardProps) => {
       // Reset form
       setTitle("");
       setDescription("");
+      setCategory("عربي");
       setVideoFile(null);
       setThumbnailFile(null);
     } catch (error: any) {
@@ -128,6 +134,22 @@ const TeacherDashboard = ({ user }: TeacherDashboardProps) => {
                 placeholder="Brief description of the video content..."
                 rows={3}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="category">Category</Label>
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      {cat}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">

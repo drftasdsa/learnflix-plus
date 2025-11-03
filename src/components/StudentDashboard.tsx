@@ -5,6 +5,8 @@ import { Video } from "lucide-react";
 import VideoList from "./VideoList";
 import SubscriptionCard from "./SubscriptionCard";
 import { supabase } from "@/integrations/supabase/client";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 interface StudentDashboardProps {
   user: User;
@@ -12,6 +14,9 @@ interface StudentDashboardProps {
 
 const StudentDashboard = ({ user }: StudentDashboardProps) => {
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+
+  const categories = ["عربي", "English", "علوم حياتية", "كيمياء", "علوم ارض", "رياضيات"];
 
   const checkSubscription = async () => {
     const { data } = await supabase
@@ -46,7 +51,23 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
           <CardDescription>Browse and watch educational content</CardDescription>
         </CardHeader>
         <CardContent>
-          <VideoList userId={user.id} isTeacher={false} />
+          <div className="mb-6">
+            <Label htmlFor="category-filter">Filter by Category</Label>
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger id="category-filter">
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Categories</SelectItem>
+                {categories.map((cat) => (
+                  <SelectItem key={cat} value={cat}>
+                    {cat}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <VideoList userId={user.id} isTeacher={false} selectedCategory={selectedCategory} />
         </CardContent>
       </Card>
     </div>
