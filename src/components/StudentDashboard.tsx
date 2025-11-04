@@ -9,7 +9,8 @@ import arabicBg from "@/assets/category-arabic.jpeg";
 import physicsBg from "@/assets/category-physics.jpeg";
 import biologyBg from "@/assets/category-biology.jpeg";
 import englishBg from "@/assets/category-english.jpeg";
-import chemistryBg from "@/assets/category-chemistry.jpeg";
+import chemistryBg from "@/assets/category-chemistry-new.jpeg";
+import mathBg from "@/assets/category-math.jpeg";
 
 interface StudentDashboardProps {
   user: User;
@@ -24,9 +25,14 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
     { name: "English", image: englishBg },
     { name: "علوم حياتية", image: biologyBg },
     { name: "كيمياء", image: chemistryBg },
-    { name: "علوم ارض", image: physicsBg },
-    { name: "رياضيات", image: physicsBg },
+    { name: "رياضيات", image: mathBg },
   ];
+
+  const getCategoryBackground = () => {
+    if (selectedCategory === "all") return "";
+    const category = categories.find(cat => cat.name === selectedCategory);
+    return category?.image || "";
+  };
 
   const checkSubscription = async () => {
     const { data } = await supabase
@@ -45,8 +51,17 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
   }, [user.id]);
 
   return (
-    <div className="space-y-6">
-      <SubscriptionCard 
+    <div 
+      className="space-y-6 min-h-screen bg-cover bg-center bg-fixed relative"
+      style={getCategoryBackground() ? {
+        backgroundImage: `url(${getCategoryBackground()})`,
+      } : undefined}
+    >
+      {getCategoryBackground() && (
+        <div className="fixed inset-0 bg-black/50 -z-10" />
+      )}
+      <div className="relative z-10">
+        <SubscriptionCard
         userId={user.id} 
         hasActiveSubscription={hasActiveSubscription}
         onSubscriptionChange={checkSubscription}
@@ -101,6 +116,7 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
           <VideoList userId={user.id} isTeacher={false} selectedCategory={selectedCategory === "all" ? undefined : selectedCategory} />
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 };

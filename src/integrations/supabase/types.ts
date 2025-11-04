@@ -225,13 +225,7 @@ export type Database = {
     }
     Enums: {
       app_role: "teacher" | "student" | "admin"
-      video_category:
-        | "عربي"
-        | "English"
-        | "علوم حياتية"
-        | "كيمياء"
-        | "علوم ارض"
-        | "رياضيات"
+      video_category: "عربي" | "English" | "علوم حياتية" | "كيمياء" | "رياضيات"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -360,14 +354,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["teacher", "student", "admin"],
-      video_category: [
-        "عربي",
-        "English",
-        "علوم حياتية",
-        "كيمياء",
-        "علوم ارض",
-        "رياضيات",
-      ],
+      video_category: ["عربي", "English", "علوم حياتية", "كيمياء", "رياضيات"],
     },
   },
 } as const
