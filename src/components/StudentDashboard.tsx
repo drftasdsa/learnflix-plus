@@ -5,8 +5,11 @@ import { Video } from "lucide-react";
 import VideoList from "./VideoList";
 import SubscriptionCard from "./SubscriptionCard";
 import { supabase } from "@/integrations/supabase/client";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
+import arabicBg from "@/assets/category-arabic.jpeg";
+import physicsBg from "@/assets/category-physics.jpeg";
+import biologyBg from "@/assets/category-biology.jpeg";
+import englishBg from "@/assets/category-english.jpeg";
+import chemistryBg from "@/assets/category-chemistry.jpeg";
 
 interface StudentDashboardProps {
   user: User;
@@ -16,7 +19,14 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
-  const categories = ["عربي", "English", "علوم حياتية", "كيمياء", "علوم ارض", "رياضيات"];
+  const categories = [
+    { name: "عربي", image: arabicBg },
+    { name: "English", image: englishBg },
+    { name: "علوم حياتية", image: biologyBg },
+    { name: "كيمياء", image: chemistryBg },
+    { name: "علوم ارض", image: physicsBg },
+    { name: "رياضيات", image: physicsBg },
+  ];
 
   const checkSubscription = async () => {
     const { data } = await supabase
@@ -52,20 +62,41 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
         </CardHeader>
         <CardContent>
           <div className="mb-6">
-            <Label htmlFor="category-filter">Filter by Category</Label>
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger id="category-filter">
-                <SelectValue placeholder="All Categories" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {categories.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
-                    {cat}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <h3 className="text-lg font-semibold mb-4">Filter by Category</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <button
+                onClick={() => setSelectedCategory("all")}
+                className={`relative h-24 rounded-lg overflow-hidden transition-all ${
+                  selectedCategory === "all" 
+                    ? "ring-4 ring-primary shadow-lg scale-105" 
+                    : "hover:scale-102 hover:shadow-md"
+                }`}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/80 to-primary/60 flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">All Categories</span>
+                </div>
+              </button>
+              {categories.map((cat) => (
+                <button
+                  key={cat.name}
+                  onClick={() => setSelectedCategory(cat.name)}
+                  className={`relative h-24 rounded-lg overflow-hidden transition-all ${
+                    selectedCategory === cat.name 
+                      ? "ring-4 ring-primary shadow-lg scale-105" 
+                      : "hover:scale-102 hover:shadow-md"
+                  }`}
+                >
+                  <img 
+                    src={cat.image} 
+                    alt={cat.name} 
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                    <span className="text-white font-bold text-lg drop-shadow-lg">{cat.name}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
           <VideoList userId={user.id} isTeacher={false} selectedCategory={selectedCategory === "all" ? undefined : selectedCategory} />
         </CardContent>
