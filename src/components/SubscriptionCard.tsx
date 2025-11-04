@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Crown, Check } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface SubscriptionCardProps {
   userId: string;
@@ -13,6 +14,7 @@ interface SubscriptionCardProps {
 
 const SubscriptionCard = ({ userId, hasActiveSubscription, onSubscriptionChange }: SubscriptionCardProps) => {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -83,39 +85,39 @@ const SubscriptionCard = ({ userId, hasActiveSubscription, onSubscriptionChange 
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Crown className="h-5 w-5 text-primary" />
-          Premium Subscription
+          {t("subscription.title")}
         </CardTitle>
         <CardDescription>
           {hasActiveSubscription 
-            ? "You have unlimited access to all videos" 
-            : "Upgrade to watch unlimited videos"}
+            ? t("subscription.active")
+            : t("subscription.upgrade")}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {hasActiveSubscription ? (
           <div className="flex items-center gap-2 text-sm text-green-600">
             <Check className="h-4 w-4" />
-            <span>Active Premium Subscription</span>
+            <span>{t("subscription.active.badge")}</span>
           </div>
         ) : (
           <>
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm">
                 <Check className="h-4 w-4 text-primary" />
-                <span>Unlimited video views</span>
+                <span>{t("subscription.benefit.unlimited")}</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Check className="h-4 w-4 text-primary" />
-                <span>HD quality streaming</span>
+                <span>{t("subscription.benefit.hd")}</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Check className="h-4 w-4 text-primary" />
-                <span>No ads</span>
+                <span>{t("subscription.benefit.noads")}</span>
               </div>
             </div>
             <div className="space-y-3">
               <div className="text-center text-sm text-muted-foreground">
-                Price: 1 JOD/month
+                {t("subscription.price")}
               </div>
               <div id="paypal-container-RNRYCK75FERFW"></div>
             </div>

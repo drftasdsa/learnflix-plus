@@ -5,6 +5,7 @@ import { Video } from "lucide-react";
 import VideoList from "./VideoList";
 import SubscriptionCard from "./SubscriptionCard";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
 import arabicBg from "@/assets/category-arabic.jpeg";
 import physicsBg from "@/assets/category-physics.jpeg";
 import biologyBg from "@/assets/category-biology.jpeg";
@@ -17,6 +18,7 @@ interface StudentDashboardProps {
 }
 
 const StudentDashboard = ({ user }: StudentDashboardProps) => {
+  const { t } = useLanguage();
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
@@ -71,13 +73,13 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Video className="h-5 w-5" />
-            Available Videos
+            {t("student.videos")}
           </CardTitle>
-          <CardDescription>Browse and watch educational content</CardDescription>
+          <CardDescription>{t("student.videos.desc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-4">Filter by Category</h3>
+            <h3 className="text-lg font-semibold mb-4">{t("student.filter")}</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <button
                 onClick={() => setSelectedCategory("all")}
@@ -88,7 +90,7 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
                 }`}
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/80 to-primary/60 flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">All Categories</span>
+                  <span className="text-white font-bold text-lg">{t("student.all.categories")}</span>
                 </div>
               </button>
               {categories.map((cat) => (

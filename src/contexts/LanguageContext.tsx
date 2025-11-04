@@ -30,6 +30,7 @@ const translations = {
     // Dashboard
     "dashboard.signout": "Sign Out",
     "dashboard.loading": "Loading...",
+    "dashboard.title": "Dashboard",
     
     // Settings
     "settings.title": "Settings",
@@ -37,9 +38,51 @@ const translations = {
     "settings.language.desc": "Choose your preferred language",
     "settings.back": "Back to Dashboard",
     
+    // Student Dashboard
+    "student.videos": "Available Videos",
+    "student.videos.desc": "Browse and watch educational content",
+    "student.filter": "Filter by Category",
+    "student.all.categories": "All Categories",
+    
+    // Subscription
+    "subscription.title": "Premium Subscription",
+    "subscription.active": "You have unlimited access to all videos",
+    "subscription.upgrade": "Upgrade to watch unlimited videos",
+    "subscription.active.badge": "Active Premium Subscription",
+    "subscription.benefit.unlimited": "Unlimited video views",
+    "subscription.benefit.hd": "HD quality streaming",
+    "subscription.benefit.noads": "No ads",
+    "subscription.price": "Price: 1 JOD/month",
+    
+    // Video List
+    "video.loading": "Loading videos...",
+    "video.none.teacher": "No videos uploaded yet",
+    "video.none.student": "No videos available",
+    "video.views": "views",
+    "video.watch": "Watch",
+    "video.limit": "Limit Reached",
+    "video.upgrade": "Upgrade to Premium for unlimited views",
+    "video.delete.confirm": "Are you sure you want to delete this video?",
+    "video.deleted": "Video deleted",
+    "video.deleted.desc": "The video has been removed successfully",
+    
+    // Teacher Dashboard
+    "teacher.upload": "Upload New Video",
+    "teacher.upload.desc": "Share your knowledge with students",
+    "teacher.videos": "My Videos",
+    "teacher.videos.desc": "Manage your uploaded content",
+    "teacher.title.label": "Video Title",
+    "teacher.description.label": "Description",
+    "teacher.category.label": "Category",
+    "teacher.video.label": "Video File",
+    "teacher.thumbnail.label": "Thumbnail Image (optional)",
+    "teacher.upload.button": "Upload Video",
+    "teacher.uploading": "Uploading...",
+    
     // Common
     "english": "English",
     "arabic": "Arabic",
+    "error": "Error",
   },
   ar: {
     // Landing Page
@@ -62,6 +105,7 @@ const translations = {
     // Dashboard
     "dashboard.signout": "تسجيل الخروج",
     "dashboard.loading": "جاري التحميل...",
+    "dashboard.title": "لوحة التحكم",
     
     // Settings
     "settings.title": "الإعدادات",
@@ -69,9 +113,51 @@ const translations = {
     "settings.language.desc": "اختر لغتك المفضلة",
     "settings.back": "العودة إلى لوحة التحكم",
     
+    // Student Dashboard
+    "student.videos": "الفيديوهات المتاحة",
+    "student.videos.desc": "تصفح وشاهد المحتوى التعليمي",
+    "student.filter": "تصفية حسب المادة",
+    "student.all.categories": "جميع المواد",
+    
+    // Subscription
+    "subscription.title": "الاشتراك المميز",
+    "subscription.active": "لديك وصول غير محدود لجميع الفيديوهات",
+    "subscription.upgrade": "قم بالترقية لمشاهدة فيديوهات غير محدودة",
+    "subscription.active.badge": "اشتراك مميز نشط",
+    "subscription.benefit.unlimited": "مشاهدات غير محدودة",
+    "subscription.benefit.hd": "جودة عالية",
+    "subscription.benefit.noads": "بدون إعلانات",
+    "subscription.price": "السعر: 1 دينار أردني/شهر",
+    
+    // Video List
+    "video.loading": "جاري تحميل الفيديوهات...",
+    "video.none.teacher": "لم يتم رفع أي فيديوهات بعد",
+    "video.none.student": "لا توجد فيديوهات متاحة",
+    "video.views": "مشاهدة",
+    "video.watch": "شاهد",
+    "video.limit": "تم الوصول للحد الأقصى",
+    "video.upgrade": "قم بالترقية للاشتراك المميز للمشاهدة غير المحدودة",
+    "video.delete.confirm": "هل أنت متأكد من حذف هذا الفيديو؟",
+    "video.deleted": "تم حذف الفيديو",
+    "video.deleted.desc": "تم إزالة الفيديو بنجاح",
+    
+    // Teacher Dashboard
+    "teacher.upload": "رفع فيديو جديد",
+    "teacher.upload.desc": "شارك معرفتك مع الطلاب",
+    "teacher.videos": "فيديوهاتي",
+    "teacher.videos.desc": "إدارة المحتوى المرفوع",
+    "teacher.title.label": "عنوان الفيديو",
+    "teacher.description.label": "الوصف",
+    "teacher.category.label": "المادة",
+    "teacher.video.label": "ملف الفيديو",
+    "teacher.thumbnail.label": "صورة مصغرة (اختياري)",
+    "teacher.upload.button": "رفع الفيديو",
+    "teacher.uploading": "جاري الرفع...",
+    
     // Common
     "english": "English",
     "arabic": "العربية",
+    "error": "خطأ",
   },
 };
 

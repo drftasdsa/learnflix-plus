@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Play, Eye, Trash2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Video {
   id: string;
@@ -29,6 +30,7 @@ interface VideoListProps {
 
 const VideoList = ({ teacherId, userId, isTeacher, selectedCategory }: VideoListProps) => {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [videos, setVideos] = useState<Video[]>([]);
   const [viewCounts, setViewCounts] = useState<Record<string, number>>({});
   const [thumbnailUrls, setThumbnailUrls] = useState<Record<string, string>>({});
@@ -88,7 +90,7 @@ const VideoList = ({ teacherId, userId, isTeacher, selectedCategory }: VideoList
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error",
+        title: t("error"),
         description: error.message,
       });
     } finally {
@@ -195,7 +197,7 @@ const VideoList = ({ teacherId, userId, isTeacher, selectedCategory }: VideoList
   };
 
   const handleDelete = async (videoId: string) => {
-    if (!confirm("Are you sure you want to delete this video?")) return;
+    if (!confirm(t("video.delete.confirm"))) return;
 
     try {
       const { error } = await supabase.from("videos").delete().eq("id", videoId);
@@ -203,27 +205,27 @@ const VideoList = ({ teacherId, userId, isTeacher, selectedCategory }: VideoList
       if (error) throw error;
 
       toast({
-        title: "Video deleted",
-        description: "The video has been removed successfully",
+        title: t("video.deleted"),
+        description: t("video.deleted.desc"),
       });
       fetchVideos();
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error",
+        title: t("error"),
         description: error.message,
       });
     }
   };
 
   if (loading) {
-    return <p className="text-muted-foreground text-center py-8">Loading videos...</p>;
+    return <p className="text-muted-foreground text-center py-8">{t("video.loading")}</p>;
   }
 
   if (videos.length === 0) {
     return (
       <p className="text-muted-foreground text-center py-8">
-        {isTeacher ? "No videos uploaded yet" : "No videos available"}
+        {isTeacher ? t("video.none.teacher") : t("video.none.student")}
       </p>
     );
   }
@@ -261,7 +263,7 @@ const VideoList = ({ teacherId, userId, isTeacher, selectedCategory }: VideoList
                 <div className="mt-3 flex items-center gap-2">
                   <Badge variant={views >= 2 ? "destructive" : "secondary"}>
                     <Eye className="h-3 w-3 mr-1" />
-                    {views}/2 views
+                    {views}/2 {t("video.views")}
                   </Badge>
                 </div>
               )}
@@ -275,7 +277,7 @@ const VideoList = ({ teacherId, userId, isTeacher, selectedCategory }: VideoList
                     className="flex-1"
                   >
                     <Play className="h-4 w-4 mr-2" />
-                    Watch
+                    {t("video.watch")}
                   </Button>
                   <Button
                     variant="destructive"
@@ -294,13 +296,13 @@ const VideoList = ({ teacherId, userId, isTeacher, selectedCategory }: VideoList
                     className="flex-1"
                   >
                     <Play className="h-4 w-4 mr-2" />
-                    {canWatch ? "Watch" : "Limit Reached"}
+                    {canWatch ? t("video.watch") : t("video.limit")}
                   </Button>
                   {!canWatch && (
                     <Alert className="mt-2">
                       <AlertCircle className="h-4 w-4" />
                       <AlertDescription className="text-xs">
-                        Upgrade to Premium for unlimited views
+                        {t("video.upgrade")}
                       </AlertDescription>
                     </Alert>
                   )}
