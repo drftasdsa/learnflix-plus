@@ -114,4 +114,18 @@ All colors MUST be HSL.
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
   }
+
+  .animate-gradient {
+    animation: gradientMove 20s ease infinite;
+  }
+
+  @keyframes float {
+    0% { transform: translateY(100vh) rotate(0deg); opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { transform: translateY(-10vh) rotate(360deg); opacity: 0.7; }
+  }
+
+  .animate-float {
+    animation: float 15s linear infinite;
+  }
 }
