@@ -18,8 +18,21 @@ const Index = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
-      <header className="border-b bg-card/50 backdrop-blur">
+    <div className="relative min-h-screen overflow-hidden transition-colors duration-700">
+      {/* 🌤️ Light Mode Background */}
+      <div className="absolute inset-0 animate-gradient bg-[length:600%_600%] bg-gradient-to-r from-sky-200 via-green-100 to-yellow-100 dark:hidden" />
+
+      {/* 🌙 Dark Mode Background */}
+      <div className="absolute inset-0 animate-gradient bg-[length:600%_600%] bg-gradient-to-r from-[#0a2540] via-[#1a365d] to-[#112240] hidden dark:block" />
+
+      {/* Floating study icons (visible in both modes) */}
+      <img src="https://cdn-icons-png.flaticon.com/512/3313/3313884.png" alt="book" className="absolute w-12 animate-float left-[10%] top-[20%]" style={{ animationDelay: "0s" }} />
+      <img src="https://cdn-icons-png.flaticon.com/512/1157/1157000.png" alt="pencil" className="absolute w-10 animate-float left-[30%] top-[40%]" style={{ animationDelay: "3s" }} />
+      <img src="https://cdn-icons-png.flaticon.com/512/3081/3081871.png" alt="lamp" className="absolute w-10 animate-float left-[50%] top-[60%]" style={{ animationDelay: "6s" }} />
+      <img src="https://cdn-icons-png.flaticon.com/512/2942/2942076.png" alt="graduation" className="absolute w-12 animate-float left-[70%] top-[30%]" style={{ animationDelay: "9s" }} />
+      <img src="https://cdn-icons-png.flaticon.com/512/1055/1055646.png" alt="paper" className="absolute w-10 animate-float left-[90%] top-[50%]" style={{ animationDelay: "12s" }} />
+
+      <header className="relative z-10 border-b bg-card/50 backdrop-blur">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <GraduationCap className="h-8 w-8 text-primary" />
@@ -34,7 +47,7 @@ const Index = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-16">
+      <main className="relative z-10 container mx-auto px-4 py-16">
         <section className="text-center mb-16">
           <h2 className="text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
             {t("landing.hero.title")}
