@@ -54,7 +54,7 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
 
   return (
     <div 
-      className="space-y-6 min-h-screen bg-cover bg-center bg-fixed relative"
+      className="space-y-0 min-h-screen bg-cover bg-center bg-fixed relative"
       style={getCategoryBackground() ? {
         backgroundImage: `url(${getCategoryBackground()})`,
       } : undefined}
@@ -63,20 +63,69 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
         <div className="fixed inset-0 bg-black/50 -z-10" />
       )}
       <div className="relative z-10">
-        <SubscriptionCard
-        userId={user.id} 
-        hasActiveSubscription={hasActiveSubscription}
-        onSubscriptionChange={checkSubscription}
-      />
+        {/* Hero Section */}
+        <section className="min-h-screen flex flex-col items-center justify-center px-4 py-20 relative">
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background -z-10 animate-gradient" />
+          
+          <div className="max-w-4xl mx-auto text-center space-y-8">
+            <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
+              {t("landing.title")}
+            </h1>
+            
+            <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">
+              {t("landing.subtitle")}
+            </p>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Video className="h-5 w-5" />
-            {t("student.videos")}
-          </CardTitle>
-          <CardDescription>{t("student.videos.desc")}</CardDescription>
-        </CardHeader>
+            <div className="grid md:grid-cols-3 gap-6 mt-16">
+              <Card className="backdrop-blur-sm bg-card/50 border-primary/20 hover:border-primary/40 transition-all">
+                <CardHeader>
+                  <CardTitle className="text-2xl">🎓 {t("landing.quality.title")}</CardTitle>
+                  <CardDescription className="text-base">{t("landing.quality.desc")}</CardDescription>
+                </CardHeader>
+              </Card>
+
+              <Card className="backdrop-blur-sm bg-card/50 border-primary/20 hover:border-primary/40 transition-all">
+                <CardHeader>
+                  <CardTitle className="text-2xl">🎁 {t("landing.free.title")}</CardTitle>
+                  <CardDescription className="text-base">{t("landing.free.desc")}</CardDescription>
+                </CardHeader>
+              </Card>
+
+              <Card className="backdrop-blur-sm bg-card/50 border-primary/20 hover:border-primary/40 transition-all">
+                <CardHeader>
+                  <CardTitle className="text-2xl">⭐ {t("landing.premium.title")}</CardTitle>
+                  <CardDescription className="text-base">{t("landing.premium.desc")}</CardDescription>
+                </CardHeader>
+              </Card>
+            </div>
+
+            <div className="pt-8">
+              <p className="text-muted-foreground animate-bounce">
+                ↓ {t("student.scroll.down") || "Scroll down to explore categories"} ↓
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Subscription Card */}
+        <div className="px-4 py-6">
+          <SubscriptionCard
+            userId={user.id} 
+            hasActiveSubscription={hasActiveSubscription}
+            onSubscriptionChange={checkSubscription}
+          />
+        </div>
+
+        {/* Categories Section */}
+        <div className="px-4 pb-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Video className="h-5 w-5" />
+                {t("student.videos")}
+              </CardTitle>
+              <CardDescription>{t("student.videos.desc")}</CardDescription>
+            </CardHeader>
         <CardContent>
           <div className="mb-6">
             <h3 className="text-lg font-semibold mb-4">{t("student.filter")}</h3>
@@ -117,7 +166,8 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
           </div>
           <VideoList userId={user.id} isTeacher={false} selectedCategory={selectedCategory === "all" ? undefined : selectedCategory} />
         </CardContent>
-      </Card>
+          </Card>
+        </div>
       </div>
     </div>
   );
