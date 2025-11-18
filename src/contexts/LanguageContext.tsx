@@ -83,6 +83,28 @@ const translations = {
     "english": "English",
     "arabic": "Arabic",
     "error": "Error",
+    
+    // Premium Dialog
+    "premium.title": "Upgrade to Premium",
+    "premium.desc": "Unlock unlimited access to all educational content",
+    "premium.feature.unlimited": "Unlimited Video Views",
+    "premium.feature.unlimited.desc": "Watch any video as many times as you want",
+    "premium.feature.hd": "HD Quality Streaming",
+    "premium.feature.hd.desc": "Access high-quality video content",
+    "premium.feature.exclusive": "No Restrictions",
+    "premium.feature.exclusive.desc": "Full access to all categories and content",
+    "premium.price.desc": "Cancel anytime, no commitment",
+    "premium.get": "Get Premium Now",
+    "premium.continue.free": "Continue with Free Plan",
+    "student.scroll.down": "Scroll down to explore categories",
+    "landing.title": "LearnFlix Plus",
+    "landing.subtitle": "Quality education at your fingertips - Learn from the best teachers",
+    "landing.quality.title": "Expert Teachers",
+    "landing.quality.desc": "Learn from experienced educators across all subjects",
+    "landing.free.title": "Free to Start",
+    "landing.free.desc": "Try 2 free views per video before upgrading",
+    "landing.premium.title": "Premium Access",
+    "landing.premium.desc": "Unlimited views and HD quality for serious learners",
   },
   ar: {
     // Landing Page
@@ -155,9 +177,31 @@ const translations = {
     "teacher.uploading": "جاري الرفع...",
     
     // Common
-    "english": "English",
+    "english": "الإنجليزية",
     "arabic": "العربية",
     "error": "خطأ",
+    
+    // Premium Dialog
+    "premium.title": "الترقية إلى المميز",
+    "premium.desc": "احصل على وصول غير محدود لجميع المحتوى التعليمي",
+    "premium.feature.unlimited": "مشاهدات غير محدودة للفيديو",
+    "premium.feature.unlimited.desc": "شاهد أي فيديو عدد المرات التي تريدها",
+    "premium.feature.hd": "بث بجودة عالية",
+    "premium.feature.hd.desc": "الوصول إلى محتوى فيديو عالي الجودة",
+    "premium.feature.exclusive": "بدون قيود",
+    "premium.feature.exclusive.desc": "وصول كامل لجميع الفئات والمحتوى",
+    "premium.price.desc": "إلغاء في أي وقت، بدون التزام",
+    "premium.get": "احصل على المميز الآن",
+    "premium.continue.free": "متابعة مع الخطة المجانية",
+    "student.scroll.down": "قم بالتمرير لأسفل لاستكشاف الفئات",
+    "landing.title": "ليرن فليكس بلس",
+    "landing.subtitle": "تعليم عالي الجودة في متناول يدك - تعلم من أفضل المعلمين",
+    "landing.quality.title": "معلمون خبراء",
+    "landing.quality.desc": "تعلم من معلمين ذوي خبرة في جميع المواد",
+    "landing.free.title": "ابدأ مجاناً",
+    "landing.free.desc": "جرب مشاهدتين مجانيتين لكل فيديو قبل الترقية",
+    "landing.premium.title": "الوصول المميز",
+    "landing.premium.desc": "مشاهدات غير محدودة وجودة عالية للمتعلمين الجادين",
   },
 };
 
