@@ -27,9 +27,10 @@ interface VideoListProps {
   isTeacher: boolean;
   selectedCategory?: string;
   onShowPremiumDialog?: () => void;
+  hasActiveSubscription?: boolean;
 }
 
-const VideoList = ({ teacherId, userId, isTeacher, selectedCategory, onShowPremiumDialog }: VideoListProps) => {
+const VideoList = ({ teacherId, userId, isTeacher, selectedCategory, onShowPremiumDialog, hasActiveSubscription }: VideoListProps) => {
   const { toast } = useToast();
   const { t } = useLanguage();
   const [videos, setVideos] = useState<Video[]>([]);
@@ -137,6 +138,12 @@ const VideoList = ({ teacherId, userId, isTeacher, selectedCategory, onShowPremi
         }
 
         window.open(signedUrlData.signedUrl, '_blank');
+        return;
+      }
+
+      // For students without premium, show premium dialog first
+      if (!hasActiveSubscription && onShowPremiumDialog) {
+        onShowPremiumDialog();
         return;
       }
 
