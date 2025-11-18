@@ -188,6 +188,7 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
             isTeacher={false} 
             selectedCategory={selectedCategory === "all" ? undefined : selectedCategory}
             onShowPremiumDialog={() => setShowPremiumDialog(true)}
+            hasActiveSubscription={hasActiveSubscription}
           />
         </CardContent>
           </Card>
