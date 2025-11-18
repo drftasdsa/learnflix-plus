@@ -26,9 +26,10 @@ interface VideoListProps {
   userId?: string;
   isTeacher: boolean;
   selectedCategory?: string;
+  onShowPremiumDialog?: () => void;
 }
 
-const VideoList = ({ teacherId, userId, isTeacher, selectedCategory }: VideoListProps) => {
+const VideoList = ({ teacherId, userId, isTeacher, selectedCategory, onShowPremiumDialog }: VideoListProps) => {
   const { toast } = useToast();
   const { t } = useLanguage();
   const [videos, setVideos] = useState<Video[]>([]);
@@ -158,6 +159,10 @@ const VideoList = ({ teacherId, userId, isTeacher, selectedCategory }: VideoList
       const typedResult = result as { success: boolean; error?: string; view_count?: number } | null;
 
       if (error || !typedResult?.success) {
+        // Show premium dialog instead of just toast
+        if (onShowPremiumDialog) {
+          onShowPremiumDialog();
+        }
         toast({
           title: "View limit reached",
           description: typedResult?.error || "You've reached your view limit. Upgrade to premium for unlimited access.",

@@ -1,11 +1,20 @@
 import { useState, useEffect } from "react";
 import { User } from "@supabase/supabase-js";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Video } from "lucide-react";
+import { Video, CheckCircle, Lock, Zap, Star } from "lucide-react";
 import VideoList from "./VideoList";
 import SubscriptionCard from "./SubscriptionCard";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import arabicBg from "@/assets/category-arabic.jpeg";
 import physicsBg from "@/assets/category-physics.jpeg";
 import biologyBg from "@/assets/category-biology.jpeg";
@@ -21,6 +30,7 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
   const { t } = useLanguage();
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [showPremiumDialog, setShowPremiumDialog] = useState(false);
 
   const categories = [
     { name: "عربي", image: arabicBg },
@@ -78,22 +88,31 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
 
             <div className="grid md:grid-cols-3 gap-6 mt-16">
               <Card className="backdrop-blur-sm bg-card/50 border-primary/20 hover:border-primary/40 transition-all">
-                <CardHeader>
-                  <CardTitle className="text-2xl">🎓 {t("landing.quality.title")}</CardTitle>
+                <CardHeader className="space-y-4">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                    <CheckCircle className="h-6 w-6 text-primary" />
+                  </div>
+                  <CardTitle className="text-2xl">{t("landing.quality.title")}</CardTitle>
                   <CardDescription className="text-base">{t("landing.quality.desc")}</CardDescription>
                 </CardHeader>
               </Card>
 
               <Card className="backdrop-blur-sm bg-card/50 border-primary/20 hover:border-primary/40 transition-all">
-                <CardHeader>
-                  <CardTitle className="text-2xl">🎁 {t("landing.free.title")}</CardTitle>
+                <CardHeader className="space-y-4">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                    <Zap className="h-6 w-6 text-primary" />
+                  </div>
+                  <CardTitle className="text-2xl">{t("landing.free.title")}</CardTitle>
                   <CardDescription className="text-base">{t("landing.free.desc")}</CardDescription>
                 </CardHeader>
               </Card>
 
               <Card className="backdrop-blur-sm bg-card/50 border-primary/20 hover:border-primary/40 transition-all">
-                <CardHeader>
-                  <CardTitle className="text-2xl">⭐ {t("landing.premium.title")}</CardTitle>
+                <CardHeader className="space-y-4">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                    <Star className="h-6 w-6 text-primary" />
+                  </div>
+                  <CardTitle className="text-2xl">{t("landing.premium.title")}</CardTitle>
                   <CardDescription className="text-base">{t("landing.premium.desc")}</CardDescription>
                 </CardHeader>
               </Card>
@@ -164,10 +183,74 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
               ))}
             </div>
           </div>
-          <VideoList userId={user.id} isTeacher={false} selectedCategory={selectedCategory === "all" ? undefined : selectedCategory} />
+          <VideoList 
+            userId={user.id} 
+            isTeacher={false} 
+            selectedCategory={selectedCategory === "all" ? undefined : selectedCategory}
+            onShowPremiumDialog={() => setShowPremiumDialog(true)}
+          />
         </CardContent>
           </Card>
         </div>
+
+        {/* Premium Dialog */}
+        <Dialog open={showPremiumDialog} onOpenChange={setShowPremiumDialog}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Star className="h-5 w-5 text-primary" />
+                {t("premium.title")}
+              </DialogTitle>
+              <DialogDescription>
+                {t("premium.desc")}
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4 py-4">
+              <div className="flex items-start gap-3">
+                <CheckCircle className="h-5 w-5 text-primary mt-0.5" />
+                <div>
+                  <p className="font-medium">{t("premium.feature.unlimited")}</p>
+                  <p className="text-sm text-muted-foreground">{t("premium.feature.unlimited.desc")}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <CheckCircle className="h-5 w-5 text-primary mt-0.5" />
+                <div>
+                  <p className="font-medium">{t("premium.feature.hd")}</p>
+                  <p className="text-sm text-muted-foreground">{t("premium.feature.hd.desc")}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <Lock className="h-5 w-5 text-primary mt-0.5" />
+                <div>
+                  <p className="font-medium">{t("premium.feature.exclusive")}</p>
+                  <p className="text-sm text-muted-foreground">{t("premium.feature.exclusive.desc")}</p>
+                </div>
+              </div>
+
+              <div className="bg-primary/10 rounded-lg p-4 text-center">
+                <p className="text-2xl font-bold text-primary">1 JOD/month</p>
+                <p className="text-sm text-muted-foreground">{t("premium.price.desc")}</p>
+              </div>
+            </div>
+
+            <DialogFooter className="flex-col sm:flex-col gap-2">
+              <Button onClick={() => {
+                setShowPremiumDialog(false);
+                // Scroll to subscription card
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }} className="w-full">
+                {t("premium.get")}
+              </Button>
+              <Button variant="outline" onClick={() => setShowPremiumDialog(false)} className="w-full">
+                {t("premium.continue.free")}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
