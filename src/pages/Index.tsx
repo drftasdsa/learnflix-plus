@@ -96,7 +96,15 @@ const Index = () => {
           </Button>
         </section>
 
-        <section className="bg-card p-8 rounded-lg border max-w-3xl mx-auto text-center">
+        <section className="bg-card p-8 rounded-lg border max-w-3xl mx-auto text-center mb-16">
+          <BookOpen className="h-12 w-12 text-primary mx-auto mb-4" />
+          <h3 className="text-2xl font-bold mb-4">{t("landing.about.title")}</h3>
+          <p className="text-muted-foreground text-lg">
+            {t("landing.about.desc")}
+          </p>
+        </section>
+
+        <section className="bg-card p-8 rounded-lg border max-w-3xl mx-auto text-center mb-16">
           <h3 className="text-2xl font-bold mb-6">{t("landing.creators")}</h3>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {[
@@ -112,6 +120,18 @@ const Index = () => {
               </div>
             ))}
           </div>
+        </section>
+
+        <section className="bg-card p-8 rounded-lg border max-w-3xl mx-auto text-center">
+          <Phone className="h-12 w-12 text-primary mx-auto mb-4" />
+          <h3 className="text-2xl font-bold mb-4">{t("landing.contact.title")}</h3>
+          <p className="text-muted-foreground mb-4">{t("landing.contact.desc")}</p>
+          <a 
+            href="tel:0788212294" 
+            className="text-2xl font-bold text-primary hover:underline"
+          >
+            0788212294
+          </a>
         </section>
       </main>
     </div>
