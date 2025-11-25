@@ -105,6 +105,10 @@ const translations = {
     "landing.free.desc": "Try 2 free views per video before upgrading",
     "landing.premium.title": "Premium Access",
     "landing.premium.desc": "Unlimited views and HD quality for serious learners",
+    "landing.about.title": "About Us",
+    "landing.about.desc": "We are a small group trying to make a good project that helps people learn from home",
+    "landing.contact.title": "Contact Us",
+    "landing.contact.desc": "Have questions? Reach out to us!",
   },
   ar: {
     // Landing Page
@@ -202,6 +206,10 @@ const translations = {
     "landing.free.desc": "جرب مشاهدتين مجانيتين لكل فيديو قبل الترقية",
     "landing.premium.title": "الوصول المميز",
     "landing.premium.desc": "مشاهدات غير محدودة وجودة عالية للمتعلمين الجادين",
+    "landing.about.title": "من نحن",
+    "landing.about.desc": "نحن مجموعة صغيرة نحاول عمل مشروع جيد يساعد الناس على التعلم من المنزل",
+    "landing.contact.title": "تواصل معنا",
+    "landing.contact.desc": "لديك أسئلة؟ تواصل معنا!",
   },
 };
 
