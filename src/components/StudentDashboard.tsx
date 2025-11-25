@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { User } from "@supabase/supabase-js";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Video, CheckCircle, Lock, Zap, Star } from "lucide-react";
+import { Video, CheckCircle, Lock, Zap, Star, BookOpen, Phone } from "lucide-react";
 import VideoList from "./VideoList";
 import SubscriptionCard from "./SubscriptionCard";
 import { supabase } from "@/integrations/supabase/client";
@@ -191,6 +191,40 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
             hasActiveSubscription={hasActiveSubscription}
           />
         </CardContent>
+          </Card>
+        </div>
+
+        {/* About Section */}
+        <div className="px-4 pb-6">
+          <Card>
+            <CardHeader className="text-center">
+              <BookOpen className="h-12 w-12 text-primary mx-auto mb-4" />
+              <CardTitle className="text-2xl">{t("landing.about.title")}</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <p className="text-muted-foreground text-lg">
+                {t("landing.about.desc")}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Contact Section */}
+        <div className="px-4 pb-6">
+          <Card>
+            <CardHeader className="text-center">
+              <Phone className="h-8 w-8 text-primary mx-auto mb-2" />
+              <CardTitle className="text-lg">{t("landing.contact.title")}</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <p className="text-sm text-muted-foreground mb-2">{t("landing.contact.desc")}</p>
+              <a 
+                href="tel:0788212294" 
+                className="text-xl font-bold text-primary hover:underline"
+              >
+                0788212294
+              </a>
+            </CardContent>
           </Card>
         </div>
 
