@@ -1,14 +1,19 @@
 {
-  "appId": "app.lovable.4d76641e7d604e7f98fcafa3d8aa64cc",
-  "appName": "learnflix-plus",
+  "appId": "com.learnflix.plus",
+  "appName": "LearnFlix Plus",
   "webDir": "dist",
-  "server": {
-    "url": "https://4d76641e-7d60-4e7f-98fc-afa3d8aa64cc.lovableproject.com?forceHideBadge=true",
-    "cleartext": true
-  },
+  "bundledWebRuntime": false,
   "plugins": {
     "SplashScreen": {
-      "launchShowDuration": 0
+      "launchShowDuration": 0,
+      "backgroundColor": "#04395e",
+      "showSpinner": false
+    }
+  },
+  "android": {
+    "buildOptions": {
+      "keystorePath": "",
+      "keystoreAlias": ""
     }
   }
 }
