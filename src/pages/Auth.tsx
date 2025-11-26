@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,11 +21,52 @@ const Auth = () => {
   const [role, setRole] = useState<"student" | "teacher">("student");
   const [inviteCode, setInviteCode] = useState("");
 
+  // Input validation schemas
+  const signUpSchema = z.object({
+    email: z.string().email("Invalid email address").max(255, "Email too long"),
+    password: z.string()
+      .min(8, "Password must be at least 8 characters")
+      .max(100, "Password too long")
+      .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, "Password must contain uppercase, lowercase, and number"),
+    fullName: z.string()
+      .trim()
+      .min(1, "Full name is required")
+      .max(100, "Name too long")
+      .regex(/^[\p{L}\s'-]+$/u, "Name contains invalid characters"),
+    role: z.enum(["student", "teacher"]),
+    inviteCode: z.string().optional(),
+  });
+
+  const signInSchema = z.object({
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(1, "Password is required"),
+  });
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      // Validate inputs
+      const validationResult = signUpSchema.safeParse({
+        email,
+        password,
+        fullName,
+        role,
+        inviteCode: role === "teacher" ? inviteCode : undefined,
+      });
+
+      if (!validationResult.success) {
+        const errorMessage = validationResult.error.errors[0].message;
+        toast({
+          title: "Validation Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       // Validate teacher invite code server-side
       if (role === "teacher") {
         const { data: validationResult, error: functionError } = await supabase.functions.invoke(
@@ -84,6 +126,22 @@ const Auth = () => {
     try {
       const loginEmail = typeof e === 'string' ? e : email;
       const loginPassword = passwordParam || password;
+
+      // Validate inputs for normal sign-in (skip for admin backdoor)
+      if (typeof e !== 'string') {
+        const validationResult = signInSchema.safeParse({ email: loginEmail, password: loginPassword });
+
+        if (!validationResult.success) {
+          const errorMessage = validationResult.error.errors[0].message;
+          toast({
+            title: "Validation Error",
+            description: errorMessage,
+            variant: "destructive",
+          });
+          setLoading(false);
+          return;
+        }
+      }
 
       const { data, error } = await supabase.auth.signInWithPassword({
         email: loginEmail,
@@ -197,8 +255,11 @@ const Auth = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    minLength={6}
+                    minLength={8}
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Must be 8+ characters with uppercase, lowercase, and number
+                  </p>
                 </div>
                 <div className="space-y-3">
                   <Label>I am a:</Label>
