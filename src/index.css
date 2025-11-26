@@ -107,6 +107,32 @@ All colors MUST be HSL.
     background-size: 400% 400%;
     animation: gradientMove 15s ease infinite;
     color: #04395e;
+    
+    /* Mobile Optimizations */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    overscroll-behavior: none;
+  }
+  
+  /* iOS Safe Area Support */
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  /* Smooth Scrolling for Mobile */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Optimize Touch Targets for Mobile */
+  button, a, input, select, textarea {
+    min-height: 44px;
+    touch-action: manipulation;
   }
 
   @keyframes gradientMove {
