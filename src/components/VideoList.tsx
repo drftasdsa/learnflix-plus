@@ -120,18 +120,23 @@ const VideoList = ({ teacherId, userId, isTeacher, selectedCategory, onShowPremi
 
   const handleWatch = async (video: Video) => {
     try {
+      console.log('Starting video watch process for:', video.title);
       const videoPath = extractStoragePath(video.video_url);
+      console.log('Extracted video path:', videoPath);
 
       // For teachers, get signed URL directly
       if (isTeacher) {
+        console.log('User is teacher, getting signed URL directly');
         const { data: signedUrlData, error: urlError } = await supabase.storage
           .from('videos')
           .createSignedUrl(videoPath, 3600);
 
+        console.log('Signed URL result:', { signedUrlData, urlError });
+
         if (urlError || !signedUrlData) {
           toast({
             title: "Error",
-            description: "Failed to access video",
+            description: urlError?.message || "Failed to access video",
             variant: "destructive",
           });
           return;
@@ -143,12 +148,14 @@ const VideoList = ({ teacherId, userId, isTeacher, selectedCategory, onShowPremi
 
       // For students without premium, show premium dialog first
       if (!hasActiveSubscription && onShowPremiumDialog) {
+        console.log('User has no active subscription, showing premium dialog');
         onShowPremiumDialog();
         return;
       }
 
       // For students, enforce view limit server-side
       if (!userId) {
+        console.log('No user ID found');
         toast({
           title: "Authentication required",
           description: "Please log in to watch videos",
@@ -157,52 +164,63 @@ const VideoList = ({ teacherId, userId, isTeacher, selectedCategory, onShowPremi
         return;
       }
 
+      console.log('User has subscription, checking view count for user:', userId);
+      
       // Call server-side function that validates view limit
       const { data: result, error } = await supabase
         .rpc('increment_view_count', {
           p_video_id: video.id
         });
 
+      console.log('View count increment result:', { result, error });
+
       const typedResult = result as { success: boolean; error?: string; view_count?: number } | null;
 
       if (error || !typedResult?.success) {
+        console.log('View limit error:', error || typedResult?.error);
         // Show premium dialog instead of just toast
         if (onShowPremiumDialog) {
           onShowPremiumDialog();
         }
         toast({
           title: "View limit reached",
-          description: typedResult?.error || "You've reached your view limit. Upgrade to premium for unlimited access.",
+          description: typedResult?.error || error?.message || "You've reached your view limit. Upgrade to premium for unlimited access.",
           variant: "destructive",
         });
         return;
       }
 
       // Update local state
+      console.log('View count incremented successfully, new count:', typedResult.view_count);
       setViewCounts(prev => ({
         ...prev,
         [video.id]: typedResult.view_count || 0
       }));
 
       // Get signed URL for the video
+      console.log('Getting signed URL for video path:', videoPath);
       const { data: signedUrlData, error: urlError } = await supabase.storage
         .from('videos')
         .createSignedUrl(videoPath, 3600);
 
+      console.log('Signed URL result:', { signedUrlData, urlError });
+
       if (urlError || !signedUrlData) {
         toast({
           title: "Error",
-          description: "Failed to access video",
+          description: urlError?.message || "Failed to access video",
           variant: "destructive",
         });
         return;
       }
 
+      console.log('Opening video in new tab');
       window.open(signedUrlData.signedUrl, '_blank');
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Error in handleWatch:', error);
       toast({
         title: "Error",
-        description: "Failed to access video",
+        description: error?.message || "Failed to access video",
         variant: "destructive",
       });
     }
