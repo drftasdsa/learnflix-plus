@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Video, Crown, Eye, Settings, BookOpen, Phone } from "lucide-react";
+import { GraduationCap, Video, Crown, Eye, Settings, BookOpen, Phone, Download } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const Index = () => {
@@ -55,9 +55,22 @@ const Index = () => {
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
             {t("landing.hero.subtitle")}
           </p>
-          <Button size="lg" onClick={() => navigate("/auth")} className="text-lg px-8 py-6">
-            {t("landing.hero.cta")}
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Button size="lg" onClick={() => navigate("/auth")} className="text-lg px-8 py-6">
+              {t("landing.hero.cta")}
+            </Button>
+            <Button 
+              size="lg" 
+              variant="outline" 
+              asChild 
+              className="text-lg px-8 py-6"
+            >
+              <a href="https://median.co/share/lppzxjn#apk" target="_blank" rel="noopener noreferrer">
+                <Download className="mr-2 h-5 w-5" />
+                Download App
+              </a>
+            </Button>
+          </div>
         </section>
 
         <section className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-16">
