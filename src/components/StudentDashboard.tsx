@@ -274,13 +274,17 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
 
             <DialogFooter className="flex-col sm:flex-col gap-2">
               <Button onClick={() => {
+                console.log('Premium upgrade button clicked');
                 setShowPremiumDialog(false);
                 // Scroll to subscription card
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }} className="w-full">
                 {t("premium.get")}
               </Button>
-              <Button variant="outline" onClick={() => setShowPremiumDialog(false)} className="w-full">
+              <Button variant="outline" onClick={() => {
+                console.log('Continue with free plan button clicked');
+                setShowPremiumDialog(false);
+              }} className="w-full">
                 {t("premium.continue.free")}
               </Button>
             </DialogFooter>
