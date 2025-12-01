@@ -146,13 +146,6 @@ const VideoList = ({ teacherId, userId, isTeacher, selectedCategory, onShowPremi
         return;
       }
 
-      // For students without premium, show premium dialog first
-      if (!hasActiveSubscription && onShowPremiumDialog) {
-        console.log('User has no active subscription, showing premium dialog');
-        onShowPremiumDialog();
-        return;
-      }
-
       // For students, enforce view limit server-side
       if (!userId) {
         console.log('No user ID found');
@@ -164,7 +157,7 @@ const VideoList = ({ teacherId, userId, isTeacher, selectedCategory, onShowPremi
         return;
       }
 
-      console.log('User has subscription, checking view count for user:', userId);
+      console.log('Checking view count for user:', userId, 'hasSubscription:', hasActiveSubscription);
       
       // Call server-side function that validates view limit
       const { data: result, error } = await supabase
@@ -178,8 +171,8 @@ const VideoList = ({ teacherId, userId, isTeacher, selectedCategory, onShowPremi
 
       if (error || !typedResult?.success) {
         console.log('View limit error:', error || typedResult?.error);
-        // Show premium dialog instead of just toast
-        if (onShowPremiumDialog) {
+        // Show premium dialog for non-subscribers who hit the limit
+        if (!hasActiveSubscription && onShowPremiumDialog) {
           onShowPremiumDialog();
         }
         toast({
