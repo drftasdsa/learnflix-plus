@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Video, CheckCircle, Lock, Zap, Star, BookOpen, Phone, Download } from "lucide-react";
 import VideoList from "./VideoList";
 import SubscriptionCard from "./SubscriptionCard";
+import StudyAssistantChat from "./StudyAssistantChat";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
@@ -144,6 +145,11 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
             hasActiveSubscription={hasActiveSubscription}
             onSubscriptionChange={checkSubscription}
           />
+        </div>
+
+        {/* Study Assistant */}
+        <div className="px-4 pb-6">
+          <StudyAssistantChat />
         </div>
 
         {/* Categories Section */}
