@@ -25,8 +25,8 @@ const StudyAssistantChat = () => {
 
   const title = isArabic ? "مساعد دراسي بالذكاء الاصطناعي" : "AI Study Assistant";
   const subtitle = isArabic
-    ? "اسأل عن دروسك في أي مادة واحصل على مساعدة فورية."
-    : "Ask questions about your subjects and get instant help.";
+    ? "اسأل عن دروسك في أي مادة واحصل على مساعدة فورية (حتى 10 أسئلة يومياً مجاناً، وأسئلة غير محدودة مع الاشتراك المميز)."
+    : "Ask questions about your subjects and get instant help (10 free questions per day, unlimited with Premium).";
   const placeholder = isArabic
     ? "اكتب سؤالاً عن دروسك (بالعربية أو بالإنجليزية)..."
     : "Ask a question about your lessons (in Arabic or English)...";
@@ -69,7 +69,23 @@ const StudyAssistantChat = () => {
         throw error;
       }
 
-      const replyText = (data as { reply?: string } | null)?.reply;
+      const typedData = data as { reply?: string; errorCode?: string; limit?: number } | null;
+
+      if (typedData?.errorCode === "AI_DAILY_LIMIT") {
+        const description = isArabic
+          ? "لقد وصلت إلى الحد اليومي وهو 10 أسئلة للمساعد الذكي. قم بالترقية للاشتراك المميز للحصول على أسئلة غير محدودة."
+          : "You have reached your daily limit of 10 AI assistant questions. Upgrade to Premium for unlimited questions.";
+
+        toast({
+          title: t("error"),
+          description,
+          variant: "destructive",
+        });
+
+        return;
+      }
+
+      const replyText = typedData?.reply;
 
       if (!replyText) {
         throw new Error("No response from study assistant");

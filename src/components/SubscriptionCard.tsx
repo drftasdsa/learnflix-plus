@@ -114,6 +114,10 @@ const SubscriptionCard = ({ userId, hasActiveSubscription, onSubscriptionChange 
                 <Check className="h-4 w-4 text-primary" />
                 <span>{t("subscription.benefit.noads")}</span>
               </div>
+              <div className="flex items-center gap-2 text-sm">
+                <Check className="h-4 w-4 text-primary" />
+                <span>{t("subscription.benefit.ai")}</span>
+              </div>
             </div>
             <div className="space-y-3">
               <div className="text-center text-sm text-muted-foreground">

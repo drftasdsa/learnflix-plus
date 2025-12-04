@@ -276,6 +276,14 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
               </div>
               
               <div className="flex items-start gap-3">
+                <CheckCircle className="h-5 w-5 text-primary mt-0.5" />
+                <div>
+                  <p className="font-medium">{t("premium.feature.ai")}</p>
+                  <p className="text-sm text-muted-foreground">{t("premium.feature.ai.desc")}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3">
                 <Lock className="h-5 w-5 text-primary mt-0.5" />
                 <div>
                   <p className="font-medium">{t("premium.feature.exclusive")}</p>
