@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { User } from "@supabase/supabase-js";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Video, CheckCircle, Lock, Zap, Star, BookOpen, Phone } from "lucide-react";
+import { Video, CheckCircle, Lock, Zap, Star, BookOpen, Phone, Download } from "lucide-react";
 import VideoList from "./VideoList";
 import SubscriptionCard from "./SubscriptionCard";
 import { supabase } from "@/integrations/supabase/client";
@@ -118,7 +118,18 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
               </Card>
             </div>
 
-            <div className="pt-8">
+            <div className="pt-8 flex flex-col items-center gap-4">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                asChild
+                className="px-8 py-6 text-lg"
+              >
+                <a href="https://median.co/share/lppzxjn#apk" target="_blank" rel="noopener noreferrer">
+                  <Download className="mr-2 h-5 w-5" />
+                  Download App
+                </a>
+              </Button>
               <p className="text-muted-foreground animate-bounce">
                 ↓ {t("student.scroll.down") || "Scroll down to explore categories"} ↓
               </p>
