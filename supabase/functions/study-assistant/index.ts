@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -26,6 +27,93 @@ serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         },
       );
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error("Supabase environment variables are not configured");
+      return new Response(
+        JSON.stringify({ error: "Backend is not fully configured for AI usage tracking." }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
+
+    const authHeader = req.headers.get("Authorization") ?? "";
+
+    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabaseClient.auth.getUser();
+
+    if (userError || !user) {
+      console.error("Unauthorized study-assistant call", userError);
+      return new Response(
+        JSON.stringify({ error: "You must be signed in to use the study assistant." }),
+        {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
+
+    // Check if user has an active premium subscription
+    const { data: subscription, error: subscriptionError } = await supabaseClient
+      .from("subscriptions")
+      .select("id, expires_at, is_active")
+      .eq("user_id", user.id)
+      .eq("is_active", true)
+      .gte("expires_at", new Date().toISOString())
+      .maybeSingle();
+
+    if (subscriptionError) {
+      console.error("Error checking subscription status:", subscriptionError);
+    }
+
+    const isPremium = !!subscription;
+
+    const DAILY_LIMIT = 10;
+
+    if (!isPremium) {
+      const today = new Date().toISOString().slice(0, 10);
+
+      const { data: usageRow, error: usageError } = await supabaseClient
+        .from("ai_usage")
+        .select("id, question_count")
+        .eq("user_id", user.id)
+        .eq("usage_date", today)
+        .maybeSingle();
+
+      if (usageError && usageError.code !== "PGRST116") {
+        console.error("Error fetching AI usage:", usageError);
+      }
+
+      const currentCount = usageRow?.question_count ?? 0;
+
+      if (currentCount >= DAILY_LIMIT) {
+        return new Response(
+          JSON.stringify({
+            errorCode: "AI_DAILY_LIMIT",
+            limit: DAILY_LIMIT,
+            isPremium: false,
+          }),
+          {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      // Only increment after we successfully get an AI response below
+      // (we'll perform the insert/update after the AI gateway call succeeds)
     }
 
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
@@ -103,6 +191,43 @@ serve(async (req) => {
     const reply =
       data?.choices?.[0]?.message?.content ??
       "I'm sorry, I couldn't generate a response. Please try asking in a different way.";
+
+    // After a successful AI response, increment daily usage for non-premium users
+    if (!isPremium) {
+      const today = new Date().toISOString().slice(0, 10);
+
+      const { data: existingUsage, error: existingUsageError } = await supabaseClient
+        .from("ai_usage")
+        .select("id, question_count")
+        .eq("user_id", user.id)
+        .eq("usage_date", today)
+        .maybeSingle();
+
+      if (existingUsageError && existingUsageError.code !== "PGRST116") {
+        console.error("Error fetching AI usage for increment:", existingUsageError);
+      } else if (existingUsage) {
+        const { error: updateError } = await supabaseClient
+          .from("ai_usage")
+          .update({ question_count: (existingUsage.question_count ?? 0) + 1 })
+          .eq("id", existingUsage.id);
+
+        if (updateError) {
+          console.error("Error updating AI usage:", updateError);
+        }
+      } else {
+        const { error: insertError } = await supabaseClient
+          .from("ai_usage")
+          .insert({
+            user_id: user.id,
+            usage_date: today,
+            question_count: 1,
+          });
+
+        if (insertError) {
+          console.error("Error inserting AI usage:", insertError);
+        }
+      }
+    }
 
     return new Response(JSON.stringify({ reply }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
