@@ -63,6 +63,22 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
     checkSubscription();
   }, [user.id]);
 
+  const handleScrollTo = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const navItems = [
+    { id: "hero", label: t("student.nav.hero") },
+    { id: "subscription", label: t("student.nav.subscription") },
+    { id: "assistant", label: t("student.nav.assistant") },
+    { id: "videos", label: t("student.nav.videos") },
+    { id: "about", label: t("student.nav.about") },
+    { id: "contact", label: t("student.nav.contact") },
+  ];
+
   return (
     <div 
       className="space-y-0 min-h-screen bg-cover bg-center bg-fixed relative"
@@ -74,8 +90,24 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
         <div className="fixed inset-0 bg-black/50 -z-10" />
       )}
       <div className="relative z-10">
+        <nav className="w-full border-b bg-background/80 backdrop-blur-md">
+          <div className="max-w-5xl mx-auto flex items-center justify-center gap-2 px-4 py-3 overflow-x-auto">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => handleScrollTo(item.id)}
+                className="whitespace-nowrap rounded-full border border-border bg-background px-4 py-1.5 text-sm font-medium text-muted-foreground hover:text-primary hover:border-primary transition-colors"
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </nav>
         {/* Hero Section */}
-        <section className="min-h-screen flex flex-col items-center justify-center px-4 py-20 relative">
+        <section
+          id="hero"
+          className="min-h-screen flex flex-col items-center justify-center px-4 py-20 relative"
+        >
           <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background -z-10 animate-gradient" />
           
           <div className="max-w-4xl mx-auto text-center space-y-8">
@@ -139,7 +171,7 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
         </section>
 
         {/* Subscription Card */}
-        <div className="px-4 py-6">
+        <div id="subscription" className="px-4 py-6">
           <SubscriptionCard
             userId={user.id} 
             hasActiveSubscription={hasActiveSubscription}
@@ -148,12 +180,12 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
         </div>
 
         {/* Study Assistant */}
-        <div className="px-4 pb-6">
+        <div id="assistant" className="px-4 pb-6">
           <StudyAssistantChat />
         </div>
 
         {/* Categories Section */}
-        <div className="px-4 pb-6">
+        <div id="videos" className="px-4 pb-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -212,7 +244,7 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
         </div>
 
         {/* About Section */}
-        <div className="px-4 pb-6">
+        <div id="about" className="px-4 pb-6">
           <Card>
             <CardHeader className="text-center">
               <BookOpen className="h-12 w-12 text-primary mx-auto mb-4" />
@@ -227,7 +259,7 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
         </div>
 
         {/* Contact Section */}
-        <div className="px-4 pb-6">
+        <div id="contact" className="px-4 pb-6">
           <Card>
             <CardHeader className="text-center">
               <Phone className="h-8 w-8 text-primary mx-auto mb-2" />

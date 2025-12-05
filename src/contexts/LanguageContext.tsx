@@ -43,6 +43,12 @@ const translations = {
     "student.videos.desc": "Browse and watch educational content",
     "student.filter": "Filter by Category",
     "student.all.categories": "All Categories",
+    "student.nav.hero": "Overview",
+    "student.nav.subscription": "Subscription",
+    "student.nav.assistant": "AI Assistant",
+    "student.nav.videos": "Videos",
+    "student.nav.about": "About",
+    "student.nav.contact": "Contact",
     
     // Subscription
     "subscription.title": "Premium Subscription",
@@ -147,6 +153,12 @@ const translations = {
     "student.videos.desc": "تصفح وشاهد المحتوى التعليمي",
     "student.filter": "تصفية حسب المادة",
     "student.all.categories": "جميع المواد",
+    "student.nav.hero": "نظرة عامة",
+    "student.nav.subscription": "الاشتراك",
+    "student.nav.assistant": "المساعد الذكي",
+    "student.nav.videos": "الفيديوهات",
+    "student.nav.about": "من نحن",
+    "student.nav.contact": "تواصل معنا",
     
     // Subscription
     "subscription.title": "الاشتراك المميز",
