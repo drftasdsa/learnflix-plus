@@ -176,6 +176,28 @@ const Auth = () => {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    try {
+      setLoading(true);
+      const redirectTo = `${window.location.origin}/dashboard`;
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo,
+        },
+      });
+      if (error) throw error;
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4">
       <Card className="w-full max-w-md">
@@ -221,6 +243,22 @@ const Auth = () => {
                   {loading ? "Signing in..." : "Sign In"}
                 </Button>
               </form>
+              <div className="mt-4 space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-px bg-border" />
+                  <span className="text-xs text-muted-foreground">Or continue with</span>
+                  <div className="flex-1 h-px bg-border" />
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleGoogleSignIn}
+                  disabled={loading}
+                >
+                  Continue with Google
+                </Button>
+              </div>
             </TabsContent>
             
             <TabsContent value="signup">
@@ -299,6 +337,22 @@ const Auth = () => {
                   {loading ? "Creating account..." : "Sign Up"}
                 </Button>
               </form>
+              <div className="mt-4 space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-px bg-border" />
+                  <span className="text-xs text-muted-foreground">Or sign up with</span>
+                  <div className="flex-1 h-px bg-border" />
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleGoogleSignIn}
+                  disabled={loading}
+                >
+                  Continue with Google
+                </Button>
+              </div>
             </TabsContent>
 
             <TabsContent value="admin">
