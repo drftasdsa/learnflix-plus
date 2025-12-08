@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Send, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -125,57 +125,77 @@ const StudyAssistantChat = () => {
   };
 
   return (
-    <Card className="backdrop-blur-sm bg-card/60 border-primary/10">
+    <Card className="glass border-border/50">
       <CardHeader>
-        <div className="flex items-center gap-2">
-          <MessageCircle className="h-5 w-5 text-primary" />
-          <CardTitle>{title}</CardTitle>
-        </div>
+        <CardTitle className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
+            <Sparkles className="h-5 w-5 text-accent" />
+          </div>
+          {title}
+        </CardTitle>
         <CardDescription>{subtitle}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="h-64 border rounded-lg p-3 bg-background/60 overflow-y-auto">
+        <div className="h-72 rounded-xl p-4 bg-secondary/30 overflow-y-auto">
           {messages.length === 0 ? (
-            <p className="text-sm text-muted-foreground">{emptyState}</p>
+            <div className="h-full flex items-center justify-center">
+              <div className="text-center space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center mx-auto">
+                  <MessageCircle className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <p className="text-sm text-muted-foreground max-w-xs">{emptyState}</p>
+              </div>
+            </div>
           ) : (
             <div className="space-y-3">
               {messages.map((message) => (
                 <div
                   key={message.id}
-                  className={
-                    message.role === "user" ? "flex justify-end" : "flex justify-start"
-                  }
+                  className={message.role === "user" ? "flex justify-end" : "flex justify-start"}
                 >
                   <div
                     className={
                       message.role === "user"
-                        ? "max-w-[80%] rounded-2xl px-3 py-2 text-sm bg-primary text-primary-foreground"
-                        : "max-w-[80%] rounded-2xl px-3 py-2 text-sm bg-muted text-foreground"
+                        ? "max-w-[80%] rounded-2xl rounded-br-md px-4 py-2.5 text-sm bg-primary text-primary-foreground shadow-sm"
+                        : "max-w-[80%] rounded-2xl rounded-bl-md px-4 py-2.5 text-sm bg-card text-foreground border border-border/50 shadow-sm"
                     }
                   >
                     {message.content}
                   </div>
                 </div>
               ))}
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="max-w-[80%] rounded-2xl rounded-bl-md px-4 py-2.5 text-sm bg-card text-muted-foreground border border-border/50 shadow-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <div className="w-2 h-2 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <div className="w-2 h-2 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
+                  </div>
+                </div>
+              )}
               <div ref={messagesEndRef} />
             </div>
           )}
         </div>
 
-        <div className="flex flex-col md:flex-row gap-2">
+        <div className="flex gap-2">
           <Textarea
             value={input}
             onChange={(event) => setInput(event.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
-            className="min-h-[60px] md:min-h-[40px]"
+            className="min-h-[52px] max-h-32 resize-none bg-background/50 rounded-xl"
+            rows={1}
           />
           <Button
             onClick={handleSend}
             disabled={isLoading || !input.trim()}
-            className="md:self-end md:h-[40px]"
+            size="icon"
+            className="h-[52px] w-[52px] rounded-xl flex-shrink-0 press-effect"
           >
-            {isLoading ? loadingLabel : sendLabel}
+            <Send className="h-5 w-5" />
           </Button>
         </div>
       </CardContent>
