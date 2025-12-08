@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
-import { GraduationCap, UserCircle } from "lucide-react";
+import { GraduationCap, UserCircle, ArrowLeft, Mail } from "lucide-react";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -199,24 +199,40 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <GraduationCap className="h-12 w-12 text-primary" />
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 relative">
+      {/* Background Effects */}
+      <div className="fixed inset-0 -z-10">
+        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-accent/10 rounded-full blur-3xl" />
+      </div>
+
+      {/* Back Button */}
+      <Button 
+        variant="ghost" 
+        onClick={() => navigate("/")} 
+        className="absolute top-4 left-4"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back
+      </Button>
+
+      <Card className="w-full max-w-md glass animate-fade-in-up">
+        <CardHeader className="text-center pb-2">
+          <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+            <GraduationCap className="h-8 w-8 text-primary" />
           </div>
-          <CardTitle className="text-3xl">LearnFlix Plus</CardTitle>
+          <CardTitle className="text-2xl gradient-text">LearnFlix Plus</CardTitle>
           <CardDescription>Your gateway to quality education</CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="signin" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="signin">Sign In</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
-                <TabsTrigger value="admin">Admin</TabsTrigger>
-              </TabsList>
+            <TabsList className="grid w-full grid-cols-3 mb-6">
+              <TabsTrigger value="signin" className="rounded-lg">Sign In</TabsTrigger>
+              <TabsTrigger value="signup" className="rounded-lg">Sign Up</TabsTrigger>
+              <TabsTrigger value="admin" className="rounded-lg">Admin</TabsTrigger>
+            </TabsList>
             
-            <TabsContent value="signin">
+            <TabsContent value="signin" className="space-y-4">
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="signin-email">Email</Label>
@@ -227,6 +243,7 @@ const Auth = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    className="bg-background/50"
                   />
                 </div>
                 <div className="space-y-2">
@@ -237,14 +254,15 @@ const Auth = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    className="bg-background/50"
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full rounded-lg press-effect" disabled={loading}>
                   {loading ? "Signing in..." : "Sign In"}
                 </Button>
               </form>
-              <div className="mt-4 space-y-2">
-                <div className="flex items-center gap-2">
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
                   <div className="flex-1 h-px bg-border" />
                   <span className="text-xs text-muted-foreground">Or continue with</span>
                   <div className="flex-1 h-px bg-border" />
@@ -252,16 +270,17 @@ const Auth = () => {
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full"
+                  className="w-full rounded-lg press-effect"
                   onClick={handleGoogleSignIn}
                   disabled={loading}
                 >
+                  <Mail className="h-4 w-4 mr-2" />
                   Continue with Google
                 </Button>
               </div>
             </TabsContent>
             
-            <TabsContent value="signup">
+            <TabsContent value="signup" className="space-y-4">
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="signup-name">Full Name</Label>
@@ -272,6 +291,7 @@ const Auth = () => {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     required
+                    className="bg-background/50"
                   />
                 </div>
                 <div className="space-y-2">
@@ -283,6 +303,7 @@ const Auth = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    className="bg-background/50"
                   />
                 </div>
                 <div className="space-y-2">
@@ -294,22 +315,23 @@ const Auth = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     minLength={8}
+                    className="bg-background/50"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Must be 8+ characters with uppercase, lowercase, and number
+                    8+ characters with uppercase, lowercase, and number
                   </p>
                 </div>
                 <div className="space-y-3">
                   <Label>I am a:</Label>
                   <RadioGroup value={role} onValueChange={(value: "student" | "teacher") => setRole(value)}>
-                    <div className="flex items-center space-x-2 p-3 border rounded-md hover:bg-accent/50 cursor-pointer">
+                    <div className={`flex items-center space-x-3 p-3 rounded-xl border transition-all cursor-pointer ${role === 'student' ? 'border-primary bg-primary/5' : 'hover:bg-secondary'}`}>
                       <RadioGroupItem value="student" id="student" />
                       <Label htmlFor="student" className="flex items-center gap-2 cursor-pointer flex-1">
                         <UserCircle className="h-5 w-5" />
                         Student
                       </Label>
                     </div>
-                    <div className="flex items-center space-x-2 p-3 border rounded-md hover:bg-accent/50 cursor-pointer">
+                    <div className={`flex items-center space-x-3 p-3 rounded-xl border transition-all cursor-pointer ${role === 'teacher' ? 'border-primary bg-primary/5' : 'hover:bg-secondary'}`}>
                       <RadioGroupItem value="teacher" id="teacher" />
                       <Label htmlFor="teacher" className="flex items-center gap-2 cursor-pointer flex-1">
                         <GraduationCap className="h-5 w-5" />
@@ -320,7 +342,7 @@ const Auth = () => {
                 </div>
                 
                 {role === "teacher" && (
-                  <div className="space-y-2">
+                  <div className="space-y-2 animate-fade-in">
                     <Label htmlFor="invite-code">Teacher Invite Code</Label>
                     <Input
                       id="invite-code"
@@ -329,16 +351,17 @@ const Auth = () => {
                       value={inviteCode}
                       onChange={(e) => setInviteCode(e.target.value)}
                       required
+                      className="bg-background/50"
                     />
                   </div>
                 )}
                 
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full rounded-lg press-effect" disabled={loading}>
                   {loading ? "Creating account..." : "Sign Up"}
                 </Button>
               </form>
-              <div className="mt-4 space-y-2">
-                <div className="flex items-center gap-2">
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
                   <div className="flex-1 h-px bg-border" />
                   <span className="text-xs text-muted-foreground">Or sign up with</span>
                   <div className="flex-1 h-px bg-border" />
@@ -346,16 +369,17 @@ const Auth = () => {
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full"
+                  className="w-full rounded-lg press-effect"
                   onClick={handleGoogleSignIn}
                   disabled={loading}
                 >
+                  <Mail className="h-4 w-4 mr-2" />
                   Continue with Google
                 </Button>
               </div>
             </TabsContent>
 
-            <TabsContent value="admin">
+            <TabsContent value="admin" className="space-y-4">
               <form onSubmit={async (e) => {
                 e.preventDefault();
                 setLoading(true);
@@ -382,7 +406,7 @@ const Auth = () => {
                 }
                 setLoading(false);
               }} className="space-y-4">
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="admin-username">Username</Label>
                   <Input
                     id="admin-username"
@@ -390,9 +414,10 @@ const Auth = () => {
                     type="text"
                     placeholder="admin"
                     required
+                    className="bg-background/50"
                   />
                 </div>
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="admin-password">Password</Label>
                   <Input
                     id="admin-password"
@@ -400,9 +425,10 @@ const Auth = () => {
                     type="password"
                     placeholder="Enter password"
                     required
+                    className="bg-background/50"
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full rounded-lg press-effect" disabled={loading}>
                   {loading ? "Signing in..." : "Sign In as Admin"}
                 </Button>
               </form>
