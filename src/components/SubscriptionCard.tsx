@@ -80,52 +80,50 @@ const SubscriptionCard = ({ userId, hasActiveSubscription, onSubscriptionChange 
   };
 
   return (
-    <Card className={`glass overflow-hidden ${hasActiveSubscription ? 'border-accent/50' : 'gradient-border'}`}>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${hasActiveSubscription ? 'bg-accent/10' : 'bg-primary/10'}`}>
-            <Crown className={`h-5 w-5 ${hasActiveSubscription ? 'text-accent' : 'text-primary'}`} />
-          </div>
+    <Card className={`glass overflow-hidden ${hasActiveSubscription ? 'border-accent/50' : 'border-primary/20'}`}>
+      <CardHeader className="text-center pb-2">
+        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 ${hasActiveSubscription ? 'bg-accent/10' : 'bg-primary/10'}`}>
+          <Crown className={`h-8 w-8 ${hasActiveSubscription ? 'text-accent' : 'text-primary'}`} />
+        </div>
+        <CardTitle className="text-2xl">
           {t("subscription.title")}
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-base">
           {hasActiveSubscription 
             ? t("subscription.active")
             : t("subscription.upgrade")}
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
         {hasActiveSubscription ? (
-          <div className="flex items-center gap-3 p-4 rounded-xl bg-accent/10 border border-accent/20">
-            <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center">
-              <Sparkles className="h-4 w-4 text-accent" />
+          <div className="flex items-center justify-center gap-3 p-6 rounded-xl bg-accent/10 border border-accent/20">
+            <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center">
+              <Sparkles className="h-5 w-5 text-accent" />
             </div>
-            <span className="font-medium text-accent">{t("subscription.active.badge")}</span>
+            <span className="font-semibold text-lg text-accent">{t("subscription.active.badge")}</span>
           </div>
         ) : (
           <>
-            <div className="space-y-3">
+            <div className="grid gap-3">
               {[
                 t("subscription.benefit.unlimited"),
                 t("subscription.benefit.hd"),
                 t("subscription.benefit.noads"),
                 t("subscription.benefit.ai"),
               ].map((benefit, index) => (
-                <div key={index} className="flex items-center gap-3">
-                  <div className="w-6 h-6 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Check className="h-3.5 w-3.5 text-primary" />
+                <div key={index} className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Check className="h-4 w-4 text-primary" />
                   </div>
-                  <span className="text-sm">{benefit}</span>
+                  <span className="text-sm font-medium">{benefit}</span>
                 </div>
               ))}
             </div>
-            <div className="space-y-4 pt-2">
-              <div className="text-center p-4 rounded-xl bg-secondary/50">
-                <p className="text-2xl font-bold gradient-text">1 JOD/month</p>
-                <p className="text-sm text-muted-foreground">{t("subscription.price")}</p>
-              </div>
-              <div id="paypal-container-RNRYCK75FERFW" className="flex justify-center"></div>
+            <div className="text-center p-6 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20">
+              <p className="text-4xl font-bold gradient-text mb-1">1 JOD</p>
+              <p className="text-muted-foreground">{t("subscription.price")}</p>
             </div>
+            <div id="paypal-container-RNRYCK75FERFW" className="flex justify-center min-h-[50px]"></div>
           </>
         )}
       </CardContent>

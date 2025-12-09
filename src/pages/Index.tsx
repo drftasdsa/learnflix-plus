@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { GraduationCap, Video, Crown, Eye, Settings, BookOpen, Phone, Download, ArrowRight } from "lucide-react";
+import { Video, Crown, Eye, Settings, BookOpen, Phone, Download, ArrowRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import logo from "@/assets/logo.png";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -30,10 +31,7 @@ const Index = () => {
       <header className="sticky top-0 z-50 glass border-b">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-              <GraduationCap className="h-6 w-6 text-primary" />
-            </div>
-            <h1 className="text-xl font-bold text-foreground">{t("app.title")}</h1>
+            <img src={logo} alt="Alkhader Learn" className="h-10 w-auto" />
           </div>
           <div className="flex items-center gap-2">
             <Button onClick={() => navigate("/settings")} variant="ghost" size="icon">
@@ -71,7 +69,7 @@ const Index = () => {
               asChild 
               className="text-base px-8 py-6 rounded-full press-effect"
             >
-              <a href="https://median.co/share/lppzxjn#apk" target="_blank" rel="noopener noreferrer">
+              <a href="https://median.co/share/eeekywy#apk" target="_blank" rel="noopener noreferrer">
                 <Download className="mr-2 h-5 w-5" />
                 Download App
               </a>
