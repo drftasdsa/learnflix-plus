@@ -123,7 +123,7 @@ const SubscriptionCard = ({ userId, hasActiveSubscription, onSubscriptionChange 
               <p className="text-4xl font-bold text-primary mb-1">1 JOD</p>
               <p className="text-muted-foreground tracking-normal">{t("subscription.price")}</p>
             </div>
-            <div id="paypal-container-RNRYCK75FERFW" className="flex justify-center min-h-[50px]"></div>
+            <div id="paypal-container-RNRYCK75FERFW" className="min-h-[50px] [&>*]:mx-auto"></div>
           </>
         )}
       </CardContent>
