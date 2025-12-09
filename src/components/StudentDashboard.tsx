@@ -164,7 +164,7 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
                 asChild
                 className="px-8 py-6 text-lg rounded-full glow press-effect animate-pulse-glow"
               >
-                <a href="https://median.co/share/lppzxjn#apk" target="_blank" rel="noopener noreferrer">
+                <a href="https://median.co/share/eeekywy#apk" target="_blank" rel="noopener noreferrer">
                   <Download className="mr-2 h-5 w-5" />
                   Download App
                 </a>
