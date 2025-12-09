@@ -85,14 +85,14 @@ const SubscriptionCard = ({ userId, hasActiveSubscription, onSubscriptionChange 
         <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 ${hasActiveSubscription ? 'bg-accent/10' : 'bg-primary/10'}`}>
           <Crown className={`h-8 w-8 ${hasActiveSubscription ? 'text-accent' : 'text-primary'}`} />
         </div>
-        <CardTitle className="text-2xl">
+        <h3 className="text-2xl font-semibold tracking-normal">
           {t("subscription.title")}
-        </CardTitle>
-        <CardDescription className="text-base">
+        </h3>
+        <p className="text-base text-muted-foreground mt-1.5 tracking-normal">
           {hasActiveSubscription 
             ? t("subscription.active")
             : t("subscription.upgrade")}
-        </CardDescription>
+        </p>
       </CardHeader>
       <CardContent className="space-y-6">
         {hasActiveSubscription ? (
@@ -100,7 +100,7 @@ const SubscriptionCard = ({ userId, hasActiveSubscription, onSubscriptionChange 
             <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center">
               <Sparkles className="h-5 w-5 text-accent" />
             </div>
-            <span className="font-semibold text-lg text-accent">{t("subscription.active.badge")}</span>
+            <span className="font-semibold text-lg text-accent tracking-normal">{t("subscription.active.badge")}</span>
           </div>
         ) : (
           <>
@@ -115,13 +115,13 @@ const SubscriptionCard = ({ userId, hasActiveSubscription, onSubscriptionChange 
                   <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
                     <Check className="h-4 w-4 text-primary" />
                   </div>
-                  <span className="text-sm font-medium">{benefit}</span>
+                  <span className="text-sm font-medium tracking-normal">{benefit}</span>
                 </div>
               ))}
             </div>
             <div className="text-center p-6 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20">
-              <p className="text-4xl font-bold gradient-text mb-1">1 JOD</p>
-              <p className="text-muted-foreground">{t("subscription.price")}</p>
+              <p className="text-4xl font-bold text-primary mb-1">1 JOD</p>
+              <p className="text-muted-foreground tracking-normal">{t("subscription.price")}</p>
             </div>
             <div id="paypal-container-RNRYCK75FERFW" className="flex justify-center min-h-[50px]"></div>
           </>
