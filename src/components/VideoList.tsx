@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ interface VideoListProps {
 }
 
 const VideoList = ({ teacherId, userId, isTeacher, selectedCategory, onShowPremiumDialog, hasActiveSubscription }: VideoListProps) => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { t } = useLanguage();
   const [videos, setVideos] = useState<Video[]>([]);
@@ -148,12 +150,8 @@ const VideoList = ({ teacherId, userId, isTeacher, selectedCategory, onShowPremi
 
       // For students, enforce view limit server-side
       if (!userId) {
-        console.log('No user ID found');
-        toast({
-          title: "Authentication required",
-          description: "Please log in to watch videos",
-          variant: "destructive",
-        });
+        console.log('No user ID found, redirecting to auth');
+        navigate("/auth");
         return;
       }
 
