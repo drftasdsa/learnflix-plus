@@ -23,7 +23,7 @@ import chemistryBg from "@/assets/category-chemistry-new.jpeg";
 import mathBg from "@/assets/category-math.jpeg";
 
 interface StudentDashboardProps {
-  user: User;
+  user: User | null;
 }
 
 const StudentDashboard = ({ user }: StudentDashboardProps) => {
@@ -47,6 +47,10 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
   };
 
   const checkSubscription = async () => {
+    if (!user) {
+      setHasActiveSubscription(false);
+      return;
+    }
     const { data } = await supabase
       .from("subscriptions")
       .select("*")
@@ -60,7 +64,7 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
 
   useEffect(() => {
     checkSubscription();
-  }, [user.id]);
+  }, [user?.id]);
 
   const handleScrollTo = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -179,7 +183,7 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
         {/* Subscription Card */}
         <div id="subscription" className="px-4 py-8 max-w-4xl mx-auto">
           <SubscriptionCard
-            userId={user.id} 
+            userId={user?.id} 
             hasActiveSubscription={hasActiveSubscription}
             onSubscriptionChange={checkSubscription}
           />
@@ -241,7 +245,7 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
                 </div>
               </div>
               <VideoList 
-                userId={user.id} 
+                userId={user?.id} 
                 isTeacher={false} 
                 selectedCategory={selectedCategory === "all" ? undefined : selectedCategory}
                 onShowPremiumDialog={() => setShowPremiumDialog(true)}
