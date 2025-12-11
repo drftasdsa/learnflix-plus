@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { GraduationCap, UserCircle, ArrowLeft, Mail } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -102,7 +103,7 @@ const Auth = () => {
 
         toast({
           title: "Account created!",
-          description: "Welcome to LearnFlix Plus",
+          description: "Welcome to Alkhader Learn",
         });
         navigate("/");
       }
@@ -218,10 +219,10 @@ const Auth = () => {
 
       <Card className="w-full max-w-md glass animate-fade-in-up">
         <CardHeader className="text-center pb-2">
-          <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-            <GraduationCap className="h-8 w-8 text-primary" />
+          <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4">
+            <img src={logo} alt="Alkhader Learn" className="h-20 w-auto" />
           </div>
-          <CardTitle className="text-2xl gradient-text">LearnFlix Plus</CardTitle>
+          <CardTitle className="text-2xl gradient-text">Alkhader Learn</CardTitle>
           <CardDescription>Your gateway to quality education</CardDescription>
         </CardHeader>
         <CardContent>

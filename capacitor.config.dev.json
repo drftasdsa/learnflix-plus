@@ -1,6 +1,6 @@
 {
-  "appId": "com.learnflix.plus",
-  "appName": "LearnFlix Plus Dev",
+  "appId": "com.alkhader.learn",
+  "appName": "Alkhader Learn Dev",
   "webDir": "dist",
   "server": {
     "url": "https://4d76641e-7d60-4e7f-98fc-afa3d8aa64cc.lovableproject.com?forceHideBadge=true",

@@ -1,6 +1,6 @@
 {
-  "appId": "com.learnflix.plus",
-  "appName": "LearnFlix Plus",
+  "appId": "com.alkhader.learn",
+  "appName": "Alkhader Learn",
   "webDir": "dist",
   "bundledWebRuntime": false,
   "plugins": {

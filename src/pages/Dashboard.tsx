@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { LogIn, LogOut, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import logo from "@/assets/logo.png";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -93,7 +94,10 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-foreground">{t("app.title")}</h1>
+          <div className="flex items-center gap-3">
+            <img src={logo} alt="Alkhader Learn" className="h-10 w-auto" />
+            <h1 className="text-xl font-bold text-foreground hidden sm:block">{t("app.title")}</h1>
+          </div>
           <div className="flex items-center gap-2">
             <Button onClick={() => navigate("/settings")} variant="ghost" size="icon">
               <Settings className="h-5 w-5" />
