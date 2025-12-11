@@ -17,16 +17,37 @@ const SubscriptionCard = ({ userId, hasActiveSubscription, onSubscriptionChange 
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (hasActiveSubscription) return;
+    
     // Load PayPal SDK
-    if (!window.paypal && !hasActiveSubscription) {
+    const loadPayPalScript = () => {
+      if (document.getElementById('paypal-hosted-buttons-script')) {
+        // Script already exists, try to render
+        if (window.paypal?.HostedButtons) {
+          renderPayPalButton();
+        }
+        return;
+      }
+      
       const script = document.createElement('script');
+      script.id = 'paypal-hosted-buttons-script';
       script.src = 'https://www.paypal.com/sdk/js?client-id=BAANataLP_HLKdLFeAP3329OpCxHRTeAoNaYCz1fHFpW1qXekg9RdyH6pYDPubS6dTtxG4kR2J86JUoc8M&components=hosted-buttons&disable-funding=venmo&currency=USD';
       script.async = true;
-      script.onload = () => renderPayPalButton();
+      script.onload = () => {
+        // Wait a bit for PayPal to fully initialize
+        setTimeout(() => {
+          if (window.paypal?.HostedButtons) {
+            renderPayPalButton();
+          }
+        }, 100);
+      };
+      script.onerror = () => {
+        console.error('Failed to load PayPal SDK');
+      };
       document.body.appendChild(script);
-    } else if (window.paypal && !hasActiveSubscription) {
-      renderPayPalButton();
-    }
+    };
+
+    loadPayPalScript();
 
     // Check if returning from PayPal
     const urlParams = new URLSearchParams(window.location.search);
@@ -71,11 +92,15 @@ const SubscriptionCard = ({ userId, hasActiveSubscription, onSubscriptionChange 
 
   const renderPayPalButton = () => {
     const container = document.getElementById('paypal-container-RNRYCK75FERFW');
-    if (container && window.paypal && !hasActiveSubscription) {
-      container.innerHTML = '';
-      window.paypal.HostedButtons({
-        hostedButtonId: "RNRYCK75FERFW",
-      }).render("#paypal-container-RNRYCK75FERFW");
+    if (container && window.paypal?.HostedButtons && !hasActiveSubscription) {
+      try {
+        container.innerHTML = '';
+        window.paypal.HostedButtons({
+          hostedButtonId: "RNRYCK75FERFW",
+        }).render("#paypal-container-RNRYCK75FERFW");
+      } catch (error) {
+        console.error('Failed to render PayPal button:', error);
+      }
     }
   };
 
