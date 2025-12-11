@@ -11,7 +11,7 @@ interface LanguageContextType {
 const translations = {
   en: {
     // Landing Page
-    "app.title": "LearnFlix Plus",
+    "app.title": "Alkhader Learn",
     "landing.hero.title": "Quality Education at Your Fingertips",
     "landing.hero.subtitle": "Join our platform where teachers share knowledge and students learn without limits",
     "landing.hero.cta": "Start Learning Now",
@@ -106,7 +106,7 @@ const translations = {
     "premium.get": "Get Premium Now",
     "premium.continue.free": "Continue with Free Plan",
     "student.scroll.down": "Scroll down to explore categories",
-    "landing.title": "LearnFlix Plus",
+    "landing.title": "Alkhader Learn",
     "landing.subtitle": "Quality education at your fingertips - Learn from the best teachers",
     "landing.quality.title": "Expert Teachers",
     "landing.quality.desc": "Learn from experienced educators across all subjects",
@@ -121,7 +121,7 @@ const translations = {
   },
   ar: {
     // Landing Page
-    "app.title": "ليرن فليكس بلس",
+    "app.title": "الخضر تعلم",
     "landing.hero.title": "تعليم عالي الجودة في متناول يدك",
     "landing.hero.subtitle": "انضم إلى منصتنا حيث يشارك المعلمون المعرفة ويتعلم الطلاب بلا حدود",
     "landing.hero.cta": "ابدأ التعلم الآن",
@@ -216,7 +216,7 @@ const translations = {
     "premium.get": "احصل على المميز الآن",
     "premium.continue.free": "متابعة مع الخطة المجانية",
     "student.scroll.down": "قم بالتمرير لأسفل لاستكشاف الفئات",
-    "landing.title": "ليرن فليكس بلس",
+    "landing.title": "الخضر تعلم",
     "landing.subtitle": "تعليم عالي الجودة في متناول يدك - تعلم من أفضل المعلمين",
     "landing.quality.title": "معلمون خبراء",
     "landing.quality.desc": "تعلم من معلمين ذوي خبرة في جميع المواد",
