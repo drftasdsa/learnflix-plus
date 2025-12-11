@@ -6,7 +6,7 @@ import { Crown, Check, Sparkles } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface SubscriptionCardProps {
-  userId: string;
+  userId?: string;
   hasActiveSubscription: boolean;
   onSubscriptionChange: () => void;
 }

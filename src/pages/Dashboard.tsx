@@ -6,7 +6,7 @@ import StudentDashboard from "@/components/StudentDashboard";
 import TeacherDashboard from "@/components/TeacherDashboard";
 import AdminDashboard from "@/components/AdminDashboard";
 import { Button } from "@/components/ui/button";
-import { LogOut, Settings } from "lucide-react";
+import { LogIn, LogOut, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -24,28 +24,25 @@ const Dashboard = () => {
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-        
-        if (!session) {
-          navigate("/auth");
-        }
       }
     );
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      
-      if (!session) {
-        navigate("/auth");
-      }
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, []);
 
   useEffect(() => {
     const fetchUserRole = async () => {
-      if (!user) return;
+      if (!user) {
+        setRole("student"); // Default to student view for unauthenticated users
+        setLoading(false);
+        return;
+      }
 
       const { data, error } = await supabase
         .from("user_roles")
@@ -101,10 +98,17 @@ const Dashboard = () => {
             <Button onClick={() => navigate("/settings")} variant="ghost" size="icon">
               <Settings className="h-5 w-5" />
             </Button>
-            <Button onClick={handleSignOut} variant="outline" size="sm">
-              <LogOut className="h-4 w-4 mr-2" />
-              {t("dashboard.signout")}
-            </Button>
+            {user ? (
+              <Button onClick={handleSignOut} variant="outline" size="sm">
+                <LogOut className="h-4 w-4 mr-2" />
+                {t("dashboard.signout")}
+              </Button>
+            ) : (
+              <Button onClick={() => navigate("/auth")} variant="outline" size="sm">
+                <LogIn className="h-4 w-4 mr-2" />
+                {t("get.started")}
+              </Button>
+            )}
           </div>
         </div>
       </header>
@@ -115,7 +119,7 @@ const Dashboard = () => {
         ) : role === "teacher" ? (
           <TeacherDashboard user={user!} />
         ) : (
-          <StudentDashboard user={user!} />
+          <StudentDashboard user={user} />
         )}
       </main>
     </div>
