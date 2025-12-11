@@ -227,10 +227,9 @@ const Auth = () => {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-6">
+            <TabsList className="grid w-full grid-cols-2 mb-6">
               <TabsTrigger value="signin" className="rounded-lg">Sign In</TabsTrigger>
               <TabsTrigger value="signup" className="rounded-lg">Sign Up</TabsTrigger>
-              <TabsTrigger value="admin" className="rounded-lg">Admin</TabsTrigger>
             </TabsList>
             
             <TabsContent value="signin" className="space-y-4">
@@ -378,61 +377,6 @@ const Auth = () => {
                   Continue with Google
                 </Button>
               </div>
-            </TabsContent>
-
-            <TabsContent value="admin" className="space-y-4">
-              <form onSubmit={async (e) => {
-                e.preventDefault();
-                setLoading(true);
-                const formData = new FormData(e.currentTarget);
-                const username = formData.get("username") as string;
-                const adminPassword = formData.get("password") as string;
-
-                if (username === "admin" && adminPassword === "147258") {
-                  try {
-                    await handleSignIn("admin@learnflix.com", "147258admin147258");
-                  } catch (error: any) {
-                    toast({
-                      variant: "destructive",
-                      title: "Admin login failed",
-                      description: error.message,
-                    });
-                  }
-                } else {
-                  toast({
-                    variant: "destructive",
-                    title: "Invalid credentials",
-                    description: "Invalid username or password",
-                  });
-                }
-                setLoading(false);
-              }} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="admin-username">Username</Label>
-                  <Input
-                    id="admin-username"
-                    name="username"
-                    type="text"
-                    placeholder="admin"
-                    required
-                    className="bg-background/50"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="admin-password">Password</Label>
-                  <Input
-                    id="admin-password"
-                    name="password"
-                    type="password"
-                    placeholder="Enter password"
-                    required
-                    className="bg-background/50"
-                  />
-                </div>
-                <Button type="submit" className="w-full rounded-lg press-effect" disabled={loading}>
-                  {loading ? "Signing in..." : "Sign In as Admin"}
-                </Button>
-              </form>
             </TabsContent>
           </Tabs>
         </CardContent>
