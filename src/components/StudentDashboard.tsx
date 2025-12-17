@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { User } from "@supabase/supabase-js";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Video, CheckCircle, Lock, Zap, Star, BookOpen, Phone, Download } from "lucide-react";
+import { Video, CheckCircle, Lock, Zap, Star, BookOpen, Phone, Download, Mail } from "lucide-react";
 import VideoList from "./VideoList";
 import SubscriptionCard from "./SubscriptionCard";
 import StudyAssistantChat from "./StudyAssistantChat";
@@ -28,6 +29,7 @@ interface StudentDashboardProps {
 
 const StudentDashboard = ({ user }: StudentDashboardProps) => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
@@ -80,6 +82,7 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
     { id: "videos", label: t("student.nav.videos") },
     { id: "about", label: t("student.nav.about") },
     { id: "contact", label: t("student.nav.contact") },
+    { id: "messages", label: t("messages"), isLink: true },
   ];
 
   return (
@@ -103,9 +106,10 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
             {navItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => handleScrollTo(item.id)}
-                className="whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all duration-200 press-effect"
+                onClick={() => item.isLink ? navigate("/messages") : handleScrollTo(item.id)}
+                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all duration-200 press-effect ${item.isLink ? 'flex items-center gap-1' : ''}`}
               >
+                {item.isLink && <Mail className="h-4 w-4" />}
                 {item.label}
               </button>
             ))}

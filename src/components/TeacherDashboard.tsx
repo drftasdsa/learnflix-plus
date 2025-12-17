@@ -7,9 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, Video } from "lucide-react";
+import { Upload, Video, Mail } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import VideoList from "./VideoList";
+import SendMessageDialog from "./SendMessageDialog";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useNavigate } from "react-router-dom";
 
 interface TeacherDashboardProps {
   user: User;
@@ -17,6 +20,8 @@ interface TeacherDashboardProps {
 
 const TeacherDashboard = ({ user }: TeacherDashboardProps) => {
   const { toast } = useToast();
+  const { t } = useLanguage();
+  const navigate = useNavigate();
   const [uploading, setUploading] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -104,6 +109,23 @@ const TeacherDashboard = ({ user }: TeacherDashboardProps) => {
 
   return (
     <div className="space-y-8">
+      {/* Messaging Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Mail className="h-5 w-5" />
+            {t("messages")}
+          </CardTitle>
+          <CardDescription>{t("sendMessage")}</CardDescription>
+        </CardHeader>
+        <CardContent className="flex gap-4">
+          <SendMessageDialog user={user} />
+          <Button variant="outline" onClick={() => navigate("/messages")}>
+            {t("messages")}
+          </Button>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
