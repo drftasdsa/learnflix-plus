@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { User } from "@supabase/supabase-js";
-import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Video, CheckCircle, Lock, Zap, Star, BookOpen, Phone, Download, Mail } from "lucide-react";
+import { Video, CheckCircle, Lock, Zap, Star, BookOpen, Phone, Download } from "lucide-react";
 import VideoList from "./VideoList";
 import SubscriptionCard from "./SubscriptionCard";
 import StudyAssistantChat from "./StudyAssistantChat";
+import BottomNavigation from "./BottomNavigation";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
@@ -29,7 +29,6 @@ interface StudentDashboardProps {
 
 const StudentDashboard = ({ user }: StudentDashboardProps) => {
   const { t } = useLanguage();
-  const navigate = useNavigate();
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
@@ -75,16 +74,6 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
     }
   };
 
-  const navItems = [
-    { id: "hero", label: t("student.nav.hero") },
-    { id: "subscription", label: t("student.nav.subscription") },
-    { id: "assistant", label: t("student.nav.assistant") },
-    { id: "videos", label: t("student.nav.videos") },
-    { id: "about", label: t("student.nav.about") },
-    { id: "contact", label: t("student.nav.contact") },
-    { id: "messages", label: t("messages"), isLink: true },
-  ];
-
   return (
     <div 
       className="min-h-screen bg-background relative"
@@ -99,22 +88,7 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm -z-10" />
       )}
       
-      <div className="relative z-10">
-        {/* Modern Navigation */}
-        <nav className="sticky top-0 z-50 w-full glass border-b">
-          <div className="max-w-6xl mx-auto flex items-center justify-center gap-1 sm:gap-2 px-4 py-3 overflow-x-auto scrollbar-hide">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => item.isLink ? navigate("/messages") : handleScrollTo(item.id)}
-                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all duration-200 press-effect ${item.isLink ? 'flex items-center gap-1' : ''}`}
-              >
-                {item.isLink && <Mail className="h-4 w-4" />}
-                {item.label}
-              </button>
-            ))}
-          </div>
-        </nav>
+      <div className="relative z-10 pb-20">
 
         {/* Hero Section */}
         <section
@@ -297,6 +271,9 @@ const StudentDashboard = ({ user }: StudentDashboardProps) => {
           </Card>
         </div>
       </div>
+
+      {/* Bottom Navigation */}
+      <BottomNavigation onScrollTo={handleScrollTo} />
 
       {/* Premium Dialog */}
       <Dialog open={showPremiumDialog} onOpenChange={setShowPremiumDialog}>
