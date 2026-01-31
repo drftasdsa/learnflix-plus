@@ -5,9 +5,11 @@ import { User } from "@supabase/supabase-js";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Mail, MailOpen, Megaphone, User as UserIcon } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, Mail, MailOpen, Megaphone, User as UserIcon, Send, Inbox } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import StudentSendMessageDialog from "@/components/StudentSendMessageDialog";
 import logo from "@/assets/logo.png";
 
 interface Message {
@@ -20,6 +22,7 @@ interface Message {
   created_at: string;
   read_at: string | null;
   sender_name?: string;
+  recipient_name?: string;
 }
 
 const Messages = () => {
@@ -27,7 +30,9 @@ const Messages = () => {
   const { toast } = useToast();
   const { t } = useLanguage();
   const [user, setUser] = useState<User | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [userRole, setUserRole] = useState<string>("student");
+  const [receivedMessages, setReceivedMessages] = useState<Message[]>([]);
+  const [sentMessages, setSentMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
 
@@ -39,6 +44,20 @@ const Messages = () => {
         return;
       }
       setUser(user);
+      
+      // Check user role
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id);
+      
+      const roles = roleData?.map(r => r.role) || [];
+      if (roles.includes("teacher")) {
+        setUserRole("teacher");
+      } else if (roles.includes("admin")) {
+        setUserRole("admin");
+      }
+      
       fetchMessages(user.id);
     };
     getUser();
@@ -46,6 +65,7 @@ const Messages = () => {
 
   const fetchMessages = async (userId: string) => {
     try {
+      // Fetch all messages user can see
       const { data: messagesData, error } = await supabase
         .from("messages")
         .select("*")
@@ -53,27 +73,40 @@ const Messages = () => {
 
       if (error) throw error;
 
-      // Fetch sender profiles
-      const senderIds = [...new Set(messagesData?.map(m => m.sender_id) || [])];
+      // Get all unique user IDs (senders and recipients)
+      const userIds = new Set<string>();
+      messagesData?.forEach(m => {
+        userIds.add(m.sender_id);
+        if (m.recipient_id) userIds.add(m.recipient_id);
+      });
+
       const { data: profiles } = await supabase
         .from("profiles")
         .select("id, full_name")
-        .in("id", senderIds);
+        .in("id", Array.from(userIds));
 
       const profileMap = new Map(profiles?.map(p => [p.id, p.full_name]) || []);
       
       const messagesWithNames = messagesData?.map(m => ({
         ...m,
-        sender_name: profileMap.get(m.sender_id) || "Teacher"
+        sender_name: profileMap.get(m.sender_id) || t("unknown"),
+        recipient_name: m.recipient_id ? profileMap.get(m.recipient_id) || t("unknown") : null
       })) || [];
 
-      setMessages(messagesWithNames);
+      // Split into received and sent
+      const received = messagesWithNames.filter(m => 
+        m.recipient_id === userId || m.is_broadcast
+      );
+      const sent = messagesWithNames.filter(m => m.sender_id === userId);
+
+      setReceivedMessages(received);
+      setSentMessages(sent);
     } catch (error: any) {
       console.error("Error fetching messages:", error);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to load messages"
+        title: t("error"),
+        description: t("failedToLoadMessages")
       });
     } finally {
       setLoading(false);
@@ -81,7 +114,7 @@ const Messages = () => {
   };
 
   const markAsRead = async (message: Message) => {
-    if (message.read_at) return;
+    if (message.read_at || message.sender_id === user?.id) return;
     
     try {
       await supabase
@@ -89,7 +122,7 @@ const Messages = () => {
         .update({ read_at: new Date().toISOString() })
         .eq("id", message.id);
 
-      setMessages(prev => prev.map(m => 
+      setReceivedMessages(prev => prev.map(m => 
         m.id === message.id ? { ...m, read_at: new Date().toISOString() } : m
       ));
     } catch (error) {
@@ -99,7 +132,9 @@ const Messages = () => {
 
   const openMessage = (message: Message) => {
     setSelectedMessage(message);
-    markAsRead(message);
+    if (message.recipient_id === user?.id || message.is_broadcast) {
+      markAsRead(message);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -107,10 +142,66 @@ const Messages = () => {
     return date.toLocaleDateString() + " " + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  const unreadCount = messages.filter(m => !m.read_at).length;
+  const unreadCount = receivedMessages.filter(m => !m.read_at && m.sender_id !== user?.id).length;
+
+  const renderMessageList = (messages: Message[], isSent: boolean) => {
+    if (messages.length === 0) {
+      return (
+        <Card className="max-w-md mx-auto text-center py-12">
+          <CardContent>
+            <Mail className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <p className="text-muted-foreground">{t("noMessages")}</p>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    return (
+      <div className="space-y-3">
+        {messages.map((message) => (
+          <Card 
+            key={message.id} 
+            className={`cursor-pointer transition-all hover:shadow-md ${!isSent && !message.read_at ? 'border-primary/50 bg-primary/5' : ''}`}
+            onClick={() => openMessage(message)}
+          >
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                <div className="mt-1">
+                  {isSent ? (
+                    <Send className="h-5 w-5 text-muted-foreground" />
+                  ) : message.read_at ? (
+                    <MailOpen className="h-5 w-5 text-muted-foreground" />
+                  ) : (
+                    <Mail className="h-5 w-5 text-primary" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={`font-medium truncate ${!isSent && !message.read_at ? 'text-foreground' : 'text-muted-foreground'}`}>
+                      {message.title}
+                    </span>
+                    {message.is_broadcast && (
+                      <Badge variant="secondary" className="shrink-0">
+                        <Megaphone className="h-3 w-3 mr-1" />
+                        {t("broadcast")}
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground truncate">{message.content}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {isSent ? `${t("to")}: ${message.recipient_name || t("allStudents")}` : `${t("from")}: ${message.sender_name}`} • {formatDate(message.created_at)}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-100 via-green-50 to-yellow-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+    <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 backdrop-blur-md bg-background/80 border-b border-border/40">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -123,16 +214,17 @@ const Messages = () => {
               <Badge variant="destructive">{unreadCount} {t("unread")}</Badge>
             )}
           </div>
+          {user && <StudentSendMessageDialog user={user} />}
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6">
+      <main className="container mx-auto px-4 py-6 max-w-2xl">
         {loading ? (
           <div className="flex justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         ) : selectedMessage ? (
-          <Card className="max-w-2xl mx-auto">
+          <Card>
             <CardHeader>
               <div className="flex items-center gap-2 mb-2">
                 <Button variant="ghost" size="sm" onClick={() => setSelectedMessage(null)}>
@@ -149,59 +241,35 @@ const Messages = () => {
                 <CardTitle>{selectedMessage.title}</CardTitle>
               </div>
               <div className="text-sm text-muted-foreground">
-                {t("from")}: {selectedMessage.sender_name} • {formatDate(selectedMessage.created_at)}
+                {selectedMessage.sender_id === user?.id 
+                  ? `${t("to")}: ${selectedMessage.recipient_name || t("allStudents")}`
+                  : `${t("from")}: ${selectedMessage.sender_name}`
+                } • {formatDate(selectedMessage.created_at)}
               </div>
             </CardHeader>
             <CardContent>
               <p className="whitespace-pre-wrap">{selectedMessage.content}</p>
             </CardContent>
           </Card>
-        ) : messages.length === 0 ? (
-          <Card className="max-w-md mx-auto text-center py-12">
-            <CardContent>
-              <Mail className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">{t("noMessages")}</p>
-            </CardContent>
-          </Card>
         ) : (
-          <div className="max-w-2xl mx-auto space-y-3">
-            {messages.map((message) => (
-              <Card 
-                key={message.id} 
-                className={`cursor-pointer transition-all hover:shadow-md ${!message.read_at ? 'border-primary/50 bg-primary/5' : ''}`}
-                onClick={() => openMessage(message)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="mt-1">
-                      {message.read_at ? (
-                        <MailOpen className="h-5 w-5 text-muted-foreground" />
-                      ) : (
-                        <Mail className="h-5 w-5 text-primary" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className={`font-medium truncate ${!message.read_at ? 'text-foreground' : 'text-muted-foreground'}`}>
-                          {message.title}
-                        </span>
-                        {message.is_broadcast && (
-                          <Badge variant="secondary" className="shrink-0">
-                            <Megaphone className="h-3 w-3 mr-1" />
-                            {t("broadcast")}
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground truncate">{message.content}</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {message.sender_name} • {formatDate(message.created_at)}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          <Tabs defaultValue="received" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="received" className="gap-2">
+                <Inbox className="h-4 w-4" />
+                {t("inbox")} {unreadCount > 0 && `(${unreadCount})`}
+              </TabsTrigger>
+              <TabsTrigger value="sent" className="gap-2">
+                <Send className="h-4 w-4" />
+                {t("sent")}
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="received">
+              {renderMessageList(receivedMessages, false)}
+            </TabsContent>
+            <TabsContent value="sent">
+              {renderMessageList(sentMessages, true)}
+            </TabsContent>
+          </Tabs>
         )}
       </main>
     </div>
