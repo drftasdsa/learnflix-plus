@@ -92,7 +92,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-card">
+      <header className="border-b bg-card sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <img src={logo} alt="Alkhader Learn" className="h-10 w-auto" />
@@ -117,15 +117,17 @@ const Dashboard = () => {
         </div>
       </header>
       
-      <main className="container mx-auto px-4 py-8">
-        {role === "admin" ? (
+      {role === "admin" ? (
+        <main className="container mx-auto px-4 py-8">
           <AdminDashboard user={user!} />
-        ) : role === "teacher" ? (
+        </main>
+      ) : role === "teacher" ? (
+        <main className="container mx-auto px-4 py-8">
           <TeacherDashboard user={user!} />
-        ) : (
-          <StudentDashboard user={user} />
-        )}
-      </main>
+        </main>
+      ) : (
+        <StudentDashboard user={user} />
+      )}
     </div>
   );
 };
