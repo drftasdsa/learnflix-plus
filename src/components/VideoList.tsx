@@ -123,28 +123,11 @@ const VideoList = ({ teacherId, userId, isTeacher, selectedCategory, onShowPremi
   const handleWatch = async (video: Video) => {
     try {
       console.log('Starting video watch process for:', video.title);
-      const videoPath = extractStoragePath(video.video_url);
-      console.log('Extracted video path:', videoPath);
 
-      // For teachers, get signed URL directly
+      // For teachers, navigate directly to video player
       if (isTeacher) {
-        console.log('User is teacher, getting signed URL directly');
-        const { data: signedUrlData, error: urlError } = await supabase.storage
-          .from('videos')
-          .createSignedUrl(videoPath, 3600);
-
-        console.log('Signed URL result:', { signedUrlData, urlError });
-
-        if (urlError || !signedUrlData) {
-          toast({
-            title: "Error",
-            description: urlError?.message || "Failed to access video",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        window.open(signedUrlData.signedUrl, '_blank');
+        console.log('User is teacher, navigating to video player');
+        navigate(`/video/${video.id}`);
         return;
       }
 
@@ -188,25 +171,8 @@ const VideoList = ({ teacherId, userId, isTeacher, selectedCategory, onShowPremi
         [video.id]: typedResult.view_count || 0
       }));
 
-      // Get signed URL for the video
-      console.log('Getting signed URL for video path:', videoPath);
-      const { data: signedUrlData, error: urlError } = await supabase.storage
-        .from('videos')
-        .createSignedUrl(videoPath, 3600);
-
-      console.log('Signed URL result:', { signedUrlData, urlError });
-
-      if (urlError || !signedUrlData) {
-        toast({
-          title: "Error",
-          description: urlError?.message || "Failed to access video",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      console.log('Opening video in new tab');
-      window.open(signedUrlData.signedUrl, '_blank');
+      // Navigate to video player page
+      navigate(`/video/${video.id}`);
     } catch (error: any) {
       console.error('Error in handleWatch:', error);
       toast({
