@@ -1,1 +1,4 @@
-project_id = "izkeoahdigrutatipqiu"
+ project_id = "izkeoahdigrutatipqiu"
+ 
+ [functions.check-ip-registration]
+ verify_jwt = false
