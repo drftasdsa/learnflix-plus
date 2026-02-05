@@ -65,6 +65,63 @@ export type Database = {
         }
         Relationships: []
       }
+      ip_accounts: {
+        Row: {
+          created_at: string | null
+          id: string
+          ip_address: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          ip_address: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          ip_address?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ip_bypass_requests: {
+        Row: {
+          created_at: string | null
+          id: string
+          ip_address: string
+          reason: string | null
+          requested_role: Database["public"]["Enums"]["app_role"]
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          ip_address: string
+          reason?: string | null
+          requested_role: Database["public"]["Enums"]["app_role"]
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          ip_address?: string
+          reason?: string | null
+          requested_role?: Database["public"]["Enums"]["app_role"]
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
@@ -273,6 +330,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_ip_register: {
+        Args: {
+          p_ip_address: string
+          p_role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -282,6 +346,14 @@ export type Database = {
       }
       increment_view_count: { Args: { p_video_id: string }; Returns: Json }
       is_user_banned: { Args: { user_id: string }; Returns: boolean }
+      register_ip_account: {
+        Args: {
+          p_ip_address: string
+          p_role: Database["public"]["Enums"]["app_role"]
+          p_user_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "teacher" | "student" | "admin"

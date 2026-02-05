@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, UserX, UserCheck, Video } from "lucide-react";
+import { Trash2, UserX, UserCheck, Video, Shield, Check, X } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import VideoList from "./VideoList";
+import { Badge } from "@/components/ui/badge";
 
 interface AdminDashboardProps {
   user: User;
@@ -29,6 +30,15 @@ interface UserProfile {
   full_name: string | null;
 }
 
+interface BypassRequest {
+  id: string;
+  ip_address: string;
+  requested_role: string;
+  reason: string | null;
+  status: string;
+  created_at: string;
+}
+
 const AdminDashboard = ({ user }: AdminDashboardProps) => {
   const { toast } = useToast();
   const [bannedUsers, setBannedUsers] = useState<BannedUser[]>([]);
@@ -36,11 +46,28 @@ const AdminDashboard = ({ user }: AdminDashboardProps) => {
   const [selectedUserId, setSelectedUserId] = useState("");
   const [banReason, setBanReason] = useState("");
   const [loading, setLoading] = useState(false);
+  const [bypassRequests, setBypassRequests] = useState<BypassRequest[]>([]);
 
   useEffect(() => {
     fetchBannedUsers();
     fetchAllUsers();
+    fetchBypassRequests();
   }, []);
+
+  const fetchBypassRequests = async () => {
+    const { data, error } = await supabase
+      .from("ip_bypass_requests")
+      .select("*")
+      .eq("status", "pending")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching bypass requests:", error);
+      return;
+    }
+
+    setBypassRequests(data || []);
+  };
 
   const fetchBannedUsers = async () => {
     const { data, error } = await supabase
@@ -118,6 +145,68 @@ const AdminDashboard = ({ user }: AdminDashboardProps) => {
       setSelectedUserId("");
       setBanReason("");
       fetchBannedUsers();
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleApproveBypass = async (requestId: string) => {
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from("ip_bypass_requests")
+        .update({ 
+          status: "approved", 
+          reviewed_at: new Date().toISOString(),
+          reviewed_by: user.id 
+        })
+        .eq("id", requestId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Request Approved",
+        description: "The user can now create another account",
+      });
+
+      fetchBypassRequests();
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRejectBypass = async (requestId: string) => {
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from("ip_bypass_requests")
+        .update({ 
+          status: "rejected", 
+          reviewed_at: new Date().toISOString(),
+          reviewed_by: user.id 
+        })
+        .eq("id", requestId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Request Rejected",
+        description: "The bypass request has been rejected",
+      });
+
+      fetchBypassRequests();
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -278,6 +367,69 @@ const AdminDashboard = ({ user }: AdminDashboardProps) => {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Shield className="h-5 w-5" />
+            IP Bypass Requests
+          </CardTitle>
+          <CardDescription>
+            {bypassRequests.length} pending request(s)
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {bypassRequests.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No pending requests</p>
+            ) : (
+              bypassRequests.map((request) => (
+                <div
+                  key={request.id}
+                  className="flex items-start justify-between p-3 border rounded-md"
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">{request.requested_role}</Badge>
+                      <span className="text-xs text-muted-foreground">
+                        IP: {request.ip_address}
+                      </span>
+                    </div>
+                    {request.reason && (
+                      <p className="text-sm text-muted-foreground mt-2">
+                        "{request.reason}"
+                      </p>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Requested on {new Date(request.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleApproveBypass(request.id)}
+                      disabled={loading}
+                    >
+                      <Check className="h-4 w-4 mr-1" />
+                      Approve
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleRejectBypass(request.id)}
+                      disabled={loading}
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Reject
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
