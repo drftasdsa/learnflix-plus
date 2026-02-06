@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Mail, MailOpen, Megaphone, User as UserIcon, Send, Inbox } from "lucide-react";
+import { ArrowLeft, Mail, MailOpen, Megaphone, User as UserIcon, Send, Inbox, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import StudentSendMessageDialog from "@/components/StudentSendMessageDialog";
@@ -130,6 +130,20 @@ const Messages = () => {
     }
   };
 
+  const deleteMessage = async (messageId: string) => {
+    if (!confirm("Delete this message?")) return;
+    try {
+      const { error } = await supabase.from("messages").delete().eq("id", messageId);
+      if (error) throw error;
+      setReceivedMessages(prev => prev.filter(m => m.id !== messageId));
+      setSentMessages(prev => prev.filter(m => m.id !== messageId));
+      setSelectedMessage(null);
+      toast({ title: t("success"), description: "Message deleted" });
+    } catch (error: any) {
+      toast({ variant: "destructive", title: t("error"), description: error.message });
+    }
+  };
+
   const openMessage = (message: Message) => {
     setSelectedMessage(message);
     if (message.recipient_id === user?.id || message.is_broadcast) {
@@ -249,6 +263,12 @@ const Messages = () => {
             </CardHeader>
             <CardContent>
               <p className="whitespace-pre-wrap">{selectedMessage.content}</p>
+              {userRole === "admin" && (
+                <Button variant="destructive" size="sm" className="mt-4" onClick={() => deleteMessage(selectedMessage.id)}>
+                  <Trash2 className="h-4 w-4 mr-1" />
+                  Delete Message
+                </Button>
+              )}
             </CardContent>
           </Card>
         ) : (
