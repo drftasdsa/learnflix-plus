@@ -29,48 +29,27 @@ const StudentSendMessageDialog = ({ user }: StudentSendMessageDialogProps) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [sending, setSending] = useState(false);
-  const [teachers, setTeachers] = useState<{ id: string; full_name: string | null }[]>([]);
-  const [selectedTeacher, setSelectedTeacher] = useState<string>("");
-  const [loadingTeachers, setLoadingTeachers] = useState(false);
+  const [teacherIds, setTeacherIds] = useState<string[]>([]);
 
   const fetchTeachers = async () => {
-    setLoadingTeachers(true);
     try {
-      // Get all teacher user_ids
-      const { data: teacherRoles, error: rolesError } = await supabase
+      const { data: teacherRoles } = await supabase
         .from("user_roles")
         .select("user_id")
         .eq("role", "teacher");
-
-      if (rolesError) throw rolesError;
-
-      const teacherIds = teacherRoles?.map((r) => r.user_id) || [];
-
-      if (teacherIds.length > 0) {
-        const { data: profiles, error: profilesError } = await supabase
-          .from("profiles")
-          .select("id, full_name")
-          .in("id", teacherIds);
-
-        if (profilesError) throw profilesError;
-        setTeachers(profiles || []);
-      }
-    } catch (error: any) {
+      setTeacherIds(teacherRoles?.map(r => r.user_id) || []);
+    } catch (error) {
       console.error("Error fetching teachers:", error);
-    } finally {
-      setLoadingTeachers(false);
     }
   };
 
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
-    if (isOpen) {
-      fetchTeachers();
-    }
+    if (isOpen) fetchTeachers();
   };
 
   const handleSend = async () => {
-    if (!title.trim() || !content.trim() || !selectedTeacher) {
+    if (!title.trim() || !content.trim()) {
       toast({
         variant: "destructive",
         title: t("error"),
@@ -79,15 +58,22 @@ const StudentSendMessageDialog = ({ user }: StudentSendMessageDialogProps) => {
       return;
     }
 
+    if (teacherIds.length === 0) {
+      toast({ variant: "destructive", title: t("error"), description: "No teachers found" });
+      return;
+    }
+
     setSending(true);
     try {
-      const { error } = await supabase.from("messages").insert({
+      // Send to all teachers
+      const inserts = teacherIds.map(tid => ({
         sender_id: user.id,
-        recipient_id: selectedTeacher,
+        recipient_id: tid,
         title: title.trim(),
         content: content.trim(),
         is_broadcast: false,
-      });
+      }));
+      const { error } = await supabase.from("messages").insert(inserts);
 
       if (error) throw error;
 
@@ -99,7 +85,6 @@ const StudentSendMessageDialog = ({ user }: StudentSendMessageDialogProps) => {
       setOpen(false);
       setTitle("");
       setContent("");
-      setSelectedTeacher("");
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -126,22 +111,6 @@ const StudentSendMessageDialog = ({ user }: StudentSendMessageDialogProps) => {
         </DialogHeader>
 
         <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label>{t("selectTeacher")}</Label>
-            <select
-              className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
-              value={selectedTeacher}
-              onChange={(e) => setSelectedTeacher(e.target.value)}
-              disabled={loadingTeachers}
-            >
-              <option value="">{loadingTeachers ? t("loading") : t("selectTeacher")}</option>
-              {teachers.map((teacher) => (
-                <option key={teacher.id} value={teacher.id}>
-                  {teacher.full_name || "Teacher"}
-                </option>
-              ))}
-            </select>
-          </div>
 
           <div className="space-y-2">
             <Label htmlFor="student-msg-title">{t("messageTitle")}</Label>
