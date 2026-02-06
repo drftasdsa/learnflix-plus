@@ -20,6 +20,7 @@ interface Video {
   quality_standard: string;
   quality_hd: string;
   category: string;
+  teacher_name?: string;
 }
 
 interface VideoListProps {
@@ -55,7 +56,20 @@ const VideoList = ({ teacherId, userId, isTeacher, selectedCategory, onShowPremi
       const { data, error } = await query;
 
       if (error) throw error;
-      setVideos(data || []);
+
+      // Fetch teacher names
+      const teacherIds = [...new Set(data?.map(v => v.teacher_id) || [])];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .in("id", teacherIds);
+      const profileMap = new Map(profiles?.map(p => [p.id, p.full_name]) || []);
+
+      const videosWithNames = (data || []).map(v => ({
+        ...v,
+        teacher_name: profileMap.get(v.teacher_id) || undefined,
+      }));
+      setVideos(videosWithNames);
 
       // Generate signed URLs for thumbnails
       if (data) {
@@ -241,6 +255,11 @@ const VideoList = ({ teacherId, userId, isTeacher, selectedCategory, onShowPremi
             <CardContent className="p-4">
               <CardTitle className="text-lg mb-2">{video.title}</CardTitle>
               <Badge variant="outline" className="mb-2">{video.category}</Badge>
+              {video.teacher_name && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  {video.teacher_name}
+                </p>
+              )}
               {video.description && (
                 <p className="text-sm text-muted-foreground line-clamp-2">
                   {video.description}
