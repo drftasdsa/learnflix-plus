@@ -1,448 +1,77 @@
 import { useState, useEffect } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
-import { Trash2, UserX, UserCheck, Video, Shield, Check, X } from "lucide-react";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import VideoList from "./VideoList";
-import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LayoutDashboard, Video, MessageSquare, ShieldBan } from "lucide-react";
+import AdminOverview from "./admin/AdminOverview";
+import AdminVideos from "./admin/AdminVideos";
+import AdminMessages from "./admin/AdminMessages";
+import AdminBanManager from "./admin/AdminBanManager";
 
 interface AdminDashboardProps {
   user: User;
 }
 
-interface BannedUser {
-  id: string;
-  user_id: string;
-  reason: string | null;
-  banned_at: string;
-  profiles?: {
-    full_name: string;
-  };
-}
-
-interface UserProfile {
-  id: string;
-  full_name: string | null;
-}
-
-interface BypassRequest {
-  id: string;
-  ip_address: string;
-  requested_role: string;
-  reason: string | null;
-  status: string;
-  created_at: string;
-}
-
 const AdminDashboard = ({ user }: AdminDashboardProps) => {
-  const { toast } = useToast();
-  const [bannedUsers, setBannedUsers] = useState<BannedUser[]>([]);
-  const [allUsers, setAllUsers] = useState<UserProfile[]>([]);
-  const [selectedUserId, setSelectedUserId] = useState("");
-  const [banReason, setBanReason] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [bypassRequests, setBypassRequests] = useState<BypassRequest[]>([]);
+  const [videoCount, setVideoCount] = useState(0);
+  const [messageCount, setMessageCount] = useState(0);
+  const [bannedCount, setBannedCount] = useState(0);
+  const [userCount, setUserCount] = useState(0);
 
   useEffect(() => {
-    fetchBannedUsers();
-    fetchAllUsers();
-    fetchBypassRequests();
+    supabase.from("profiles").select("id", { count: "exact", head: true }).then(({ count }) => {
+      setUserCount(count || 0);
+    });
   }, []);
 
-  const fetchBypassRequests = async () => {
-    const { data, error } = await supabase
-      .from("ip_bypass_requests")
-      .select("*")
-      .eq("status", "pending")
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      console.error("Error fetching bypass requests:", error);
-      return;
-    }
-
-    setBypassRequests(data || []);
-  };
-
-  const fetchBannedUsers = async () => {
-    const { data, error } = await supabase
-      .from("banned_users")
-      .select("*")
-      .order("banned_at", { ascending: false });
-
-    if (error) {
-      console.error("Error fetching banned users:", error);
-      return;
-    }
-
-    // Fetch profile names separately
-    if (data && data.length > 0) {
-      const userIds = data.map(b => b.user_id);
-      const { data: profilesData } = await supabase
-        .from("profiles")
-        .select("id, full_name")
-        .in("id", userIds);
-
-      const profileMap = new Map(profilesData?.map(p => [p.id, p.full_name]) || []);
-      
-      const enrichedData = data.map(banned => ({
-        ...banned,
-        profiles: { full_name: profileMap.get(banned.user_id) || "Unknown User" }
-      }));
-
-      setBannedUsers(enrichedData);
-    } else {
-      setBannedUsers([]);
-    }
-  };
-
-  const fetchAllUsers = async () => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("id, full_name")
-      .order("full_name");
-
-    if (error) {
-      console.error("Error fetching users:", error);
-      return;
-    }
-
-    setAllUsers(data || []);
-  };
-
-  const handleBanUser = async () => {
-    if (!selectedUserId) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Please select a user to ban",
-      });
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const { error } = await supabase
-        .from("banned_users")
-        .insert({
-          user_id: selectedUserId,
-          banned_by: user.id,
-          reason: banReason || null,
-        });
-
-      if (error) throw error;
-
-      toast({
-        title: "User banned",
-        description: "The user has been banned successfully",
-      });
-
-      setSelectedUserId("");
-      setBanReason("");
-      fetchBannedUsers();
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleApproveBypass = async (requestId: string) => {
-    setLoading(true);
-    try {
-      const { error } = await supabase
-        .from("ip_bypass_requests")
-        .update({ 
-          status: "approved", 
-          reviewed_at: new Date().toISOString(),
-          reviewed_by: user.id 
-        })
-        .eq("id", requestId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Request Approved",
-        description: "The user can now create another account",
-      });
-
-      fetchBypassRequests();
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleRejectBypass = async (requestId: string) => {
-    setLoading(true);
-    try {
-      const { error } = await supabase
-        .from("ip_bypass_requests")
-        .update({ 
-          status: "rejected", 
-          reviewed_at: new Date().toISOString(),
-          reviewed_by: user.id 
-        })
-        .eq("id", requestId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Request Rejected",
-        description: "The bypass request has been rejected",
-      });
-
-      fetchBypassRequests();
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleUnbanUser = async (bannedUserId: string) => {
-    setLoading(true);
-    try {
-      const { error } = await supabase
-        .from("banned_users")
-        .delete()
-        .eq("id", bannedUserId);
-
-      if (error) throw error;
-
-      toast({
-        title: "User unbanned",
-        description: "The user has been unbanned successfully",
-      });
-
-      fetchBannedUsers();
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <div className="space-y-8">
-      <Card>
-        <CardHeader>
-          <CardTitle>All Users</CardTitle>
-          <CardDescription>{allUsers.length} total users</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {allUsers.map((u) => (
-              <div key={u.id} className="p-3 border rounded-md flex justify-between items-center">
-                <div>
-                  <p className="font-medium">{u.full_name || "Unnamed User"}</p>
-                  <p className="text-xs text-muted-foreground">{u.id}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <UserX className="h-5 w-5" />
-              Ban User
-            </CardTitle>
-            <CardDescription>Prevent a user from accessing the platform</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Select User</label>
-              <select
-                value={selectedUserId}
-                onChange={(e) => setSelectedUserId(e.target.value)}
-                className="w-full p-2 border rounded-md bg-background text-foreground"
-              >
-                <option value="">-- Select a user --</option>
-                {allUsers.map((u) => (
-                  <option key={u.id} value={u.id}>
-                    {u.full_name || "Unnamed User"}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Reason (Optional)</label>
-              <Textarea
-                value={banReason}
-                onChange={(e) => setBanReason(e.target.value)}
-                placeholder="Reason for banning..."
-                rows={3}
-              />
-            </div>
-            <Button onClick={handleBanUser} disabled={loading} className="w-full">
-              {loading ? "Banning..." : "Ban User"}
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <UserCheck className="h-5 w-5" />
-              Banned Users
-            </CardTitle>
-            <CardDescription>
-              {bannedUsers.length} user(s) currently banned
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {bannedUsers.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No banned users</p>
-              ) : (
-                bannedUsers.map((banned) => (
-                  <div
-                    key={banned.id}
-                    className="flex items-start justify-between p-3 border rounded-md"
-                  >
-                    <div className="flex-1">
-                      <p className="font-medium">
-                        {banned.profiles?.full_name || "Unknown User"}
-                      </p>
-                      {banned.reason && (
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {banned.reason}
-                        </p>
-                      )}
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Banned on {new Date(banned.banned_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="outline" size="sm">
-                          Unban
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Unban User?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This will restore the user's access to the platform.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleUnbanUser(banned.id)}>
-                            Unban
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
-                ))
-              )}
-            </div>
-          </CardContent>
-        </Card>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold">Admin Panel</h2>
+        <p className="text-muted-foreground">Manage your platform</p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5" />
-            IP Bypass Requests
-          </CardTitle>
-          <CardDescription>
-            {bypassRequests.length} pending request(s)
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {bypassRequests.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No pending requests</p>
-            ) : (
-              bypassRequests.map((request) => (
-                <div
-                  key={request.id}
-                  className="flex items-start justify-between p-3 border rounded-md"
-                >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline">{request.requested_role}</Badge>
-                      <span className="text-xs text-muted-foreground">
-                        IP: {request.ip_address}
-                      </span>
-                    </div>
-                    {request.reason && (
-                      <p className="text-sm text-muted-foreground mt-2">
-                        "{request.reason}"
-                      </p>
-                    )}
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Requested on {new Date(request.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleApproveBypass(request.id)}
-                      disabled={loading}
-                    >
-                      <Check className="h-4 w-4 mr-1" />
-                      Approve
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleRejectBypass(request.id)}
-                      disabled={loading}
-                    >
-                      <X className="h-4 w-4 mr-1" />
-                      Reject
-                    </Button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      <Tabs defaultValue="overview" className="w-full">
+        <TabsList className="grid w-full grid-cols-4 mb-6">
+          <TabsTrigger value="overview" className="gap-2">
+            <LayoutDashboard className="h-4 w-4" />
+            <span className="hidden sm:inline">Overview</span>
+          </TabsTrigger>
+          <TabsTrigger value="videos" className="gap-2">
+            <Video className="h-4 w-4" />
+            <span className="hidden sm:inline">Videos</span>
+          </TabsTrigger>
+          <TabsTrigger value="messages" className="gap-2">
+            <MessageSquare className="h-4 w-4" />
+            <span className="hidden sm:inline">Messages</span>
+          </TabsTrigger>
+          <TabsTrigger value="users" className="gap-2">
+            <ShieldBan className="h-4 w-4" />
+            <span className="hidden sm:inline">Users</span>
+          </TabsTrigger>
+        </TabsList>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Video className="h-5 w-5" />
-            All Videos
-          </CardTitle>
-          <CardDescription>Manage all videos on the platform</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <VideoList isTeacher={true} userId={user.id} />
-        </CardContent>
-      </Card>
+        <TabsContent value="overview">
+          <AdminOverview
+            totalUsers={userCount}
+            totalVideos={videoCount}
+            totalMessages={messageCount}
+            totalBanned={bannedCount}
+          />
+        </TabsContent>
+
+        <TabsContent value="videos">
+          <AdminVideos onCountChange={setVideoCount} />
+        </TabsContent>
+
+        <TabsContent value="messages">
+          <AdminMessages onCountChange={setMessageCount} />
+        </TabsContent>
+
+        <TabsContent value="users">
+          <AdminBanManager user={user} onBannedCountChange={setBannedCount} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
