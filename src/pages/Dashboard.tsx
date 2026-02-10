@@ -28,7 +28,24 @@ const Dashboard = () => {
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user) {
+        // Check if user is banned
+        const { data: banCheck } = await supabase
+          .from('banned_users')
+          .select('id')
+          .eq('user_id', session.user.id)
+          .maybeSingle();
+        
+        if (banCheck) {
+          await supabase.auth.signOut();
+          setSession(null);
+          setUser(null);
+          setLoading(false);
+          navigate("/auth");
+          return;
+        }
+      }
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);

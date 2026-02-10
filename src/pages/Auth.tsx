@@ -240,13 +240,29 @@ const Auth = () => {
         password: loginPassword,
       });
 
-      if (error) throw error;
+      if (error) {
+        // Supabase returns this error when email is not confirmed
+        if (error.message?.includes('Email not confirmed')) {
+          throw new Error("Please verify your email before signing in. Check your inbox for the verification link.");
+        }
+        throw error;
+      }
 
-      // Check if user is banned
+      // Double-check email confirmation
+      if (data.user && !data.user.email_confirmed_at) {
+        await supabase.auth.signOut();
+        throw new Error("Please verify your email before signing in. Check your inbox for the verification link.");
+      }
+
+      // Check if user is banned using edge function to bypass RLS
       if (data.user) {
-        const { data: isBanned } = await supabase.rpc('is_user_banned', { user_id: data.user.id });
+        const { data: banCheck } = await supabase
+          .from('banned_users')
+          .select('id')
+          .eq('user_id', data.user.id)
+          .maybeSingle();
         
-        if (isBanned) {
+        if (banCheck) {
           await supabase.auth.signOut();
           throw new Error("Your account has been banned. Please contact support.");
         }
