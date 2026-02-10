@@ -198,14 +198,17 @@ const AdminBanManager = ({ user, onBannedCountChange }: AdminBanManagerProps) =>
         </Card>
       </div>
 
-      {bypassRequests.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Shield className="h-5 w-5" />IP Bypass Requests ({bypassRequests.length})</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {bypassRequests.map((request) => (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2"><Shield className="h-5 w-5" />IP Bypass Requests ({bypassRequests.length})</CardTitle>
+          <CardDescription>Manage IP registration bypass requests from users on shared networks</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {bypassRequests.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No pending bypass requests</p>
+            ) : (
+              bypassRequests.map((request) => (
                 <div key={request.id} className="flex items-start justify-between p-3 border rounded-md">
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
@@ -224,11 +227,11 @@ const AdminBanManager = ({ user, onBannedCountChange }: AdminBanManagerProps) =>
                     </Button>
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+              ))
+            )}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

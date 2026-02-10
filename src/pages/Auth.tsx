@@ -27,6 +27,7 @@ const Auth = () => {
   const [bypassReason, setBypassReason] = useState("");
   const [showBypassForm, setShowBypassForm] = useState(false);
   const [bypassSubmitted, setBypassSubmitted] = useState(false);
+  const [showEmailVerification, setShowEmailVerification] = useState(false);
 
   // Input validation schemas
   const signUpSchema = z.object({
@@ -183,11 +184,12 @@ const Auth = () => {
         // Register IP account
         await registerIPAccount(data.user.id, role);
 
+        // Show email verification message
+        setShowEmailVerification(true);
         toast({
           title: "Account created!",
-          description: "Welcome to Alkhader Learn",
+          description: "Please check your email to verify your account before signing in.",
         });
-        navigate("/");
       }
     } catch (error: any) {
       toast({
@@ -306,15 +308,36 @@ const Auth = () => {
         Back
       </Button>
 
-      <Card className="w-full max-w-md glass animate-fade-in-up">
-        <CardHeader className="text-center pb-2">
-          <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4">
-            <img src={logo} alt="Alkhader Learn" className="h-20 w-auto" />
-          </div>
-          <CardTitle className="text-2xl gradient-text">Alkhader Learn</CardTitle>
-          <CardDescription>Your gateway to quality education</CardDescription>
-        </CardHeader>
-        <CardContent>
+      {showEmailVerification ? (
+        <Card className="w-full max-w-md glass animate-fade-in-up">
+          <CardHeader className="text-center pb-2">
+            <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4">
+              <Mail className="h-16 w-16 text-primary" />
+            </div>
+            <CardTitle className="text-2xl gradient-text">Check Your Email</CardTitle>
+            <CardDescription className="mt-2">
+              We've sent a verification link to <strong>{email}</strong>. Please click the link in the email to verify your account, then come back here to sign in.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button 
+              onClick={() => { setShowEmailVerification(false); setEmail(""); setPassword(""); setFullName(""); }} 
+              className="w-full rounded-lg"
+            >
+              Back to Sign In
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="w-full max-w-md glass animate-fade-in-up">
+          <CardHeader className="text-center pb-2">
+            <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4">
+              <img src={logo} alt="Alkhader Learn" className="h-20 w-auto" />
+            </div>
+            <CardTitle className="text-2xl gradient-text">Alkhader Learn</CardTitle>
+            <CardDescription>Your gateway to quality education</CardDescription>
+          </CardHeader>
+          <CardContent>
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6">
               <TabsTrigger value="signin" className="rounded-lg">Sign In</TabsTrigger>
@@ -524,6 +547,7 @@ const Auth = () => {
           </Tabs>
         </CardContent>
       </Card>
+      )}
     </div>
   );
 };
